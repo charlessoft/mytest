@@ -1,0 +1,12 @@
+{
+  "taskdb": "sqlite+taskdb:///taskdb.db",
+  "projectdb": "sqlite+projectdb:///projectdb.db",
+  "resultdb": "sqlite+resultdb:///resultdb.db",
+  "phantomjs_proxy": "localhost:25555",
+  "message_queue": "amqp://127.0.0.1:5672/%2F",
+  "webui": {
+    "username": "admin",
+    "password": "123123",
+    "need-auth": true
+  }
+}
