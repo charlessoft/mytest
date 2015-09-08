@@ -167,7 +167,7 @@ def cli(ctx, **kwargs):
 @click.option('--xmlrpc/--no-xmlrpc', default=True)
 @click.option('--xmlrpc-host', default='0.0.0.0')
 @click.option('--xmlrpc-port', envvar='SCHEDULER_XMLRPC_PORT', default=23333)
-@click.option('--bloomfilter-on/--bloomfilter-off', default=True)
+@click.option('--bloomfilter-on/--bloomfilter-off', default=False)
 @click.option('--bloomfilter-rpc', callback=connect_rpc, help='xmlrpc path of bloomfilter')
 @click.option('--inqueue-limit', default=0,
               help='size limit of task queue for each project, '
@@ -195,7 +195,6 @@ def scheduler(ctx, xmlrpc, xmlrpc_host, xmlrpc_port,
                                     'http://%(xmlrpc_host)s:%(xmlrpc_port)s/' % bloomfilter_config)
     else:
         bloomfilter_rpc = None
-
 
     scheduler = Scheduler(taskdb=g.taskdb, projectdb=g.projectdb, resultdb=g.resultdb,
                           newtask_queue=g.newtask_queue, status_queue=g.status_queue,

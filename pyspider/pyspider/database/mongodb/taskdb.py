@@ -91,6 +91,6 @@ class TaskDB(SplitTableMixin, BaseTaskDB):
         collection_name = self._collection_name(project)
         return self.database[collection_name].update(
             {'taskid': taskid},
-            {"$set": self._stringify(obj)},
+            {"$set": obj},
             upsert=True
         )

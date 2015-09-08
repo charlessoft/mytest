@@ -698,9 +698,9 @@ class Scheduler(object):
         if retried == 0:
             next_exetime = 0
         elif retried == 1:
-            next_exetime = DELAY_BASE_TIME
+            next_exetime = self.DELAY_BASE_TIME
         else:
-            next_exetime = (2 ** retried) * DELAY_BASE_TIME
+            next_exetime = (2 ** retried) * self.DELAY_BASE_TIME
 
         if task['schedule'].get('auto_recrawl') and 'age' in task['schedule']:
             next_exetime = min(next_exetime, task['schedule'].get('age'))
