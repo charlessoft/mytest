@@ -14,8 +14,8 @@ from urllib import quote
 from weibo.login import WeiboLogin, WeiboLoginFailure
 import requests
 
-username = 'androidq@sina.cn'
-passwd = 'azsx123'
+username = 'username'
+passwd = 'passwd'
 
 
 l = WeiboLogin(username, passwd)
