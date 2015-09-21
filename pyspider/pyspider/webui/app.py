@@ -114,3 +114,10 @@ def cdn_url_handler(error, endpoint, kwargs):
         else:
             raise error
 app.handle_url_build_error = cdn_url_handler
+
+
+
+
+from flask.ext.restful import Api
+
+api = Api(app)

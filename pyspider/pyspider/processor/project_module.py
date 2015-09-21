@@ -60,10 +60,11 @@ class ProjectManager(object):
 
         if '__handler_cls__' not in module.__dict__:
             BaseHandler = module.__dict__.get('BaseHandler', base_handler.BaseHandler)
-            for each in list(six.itervalues(module.__dict__)):
-                if inspect.isclass(each) and each is not BaseHandler \
-                        and issubclass(each, BaseHandler):
-                    module.__dict__['__handler_cls__'] = each
+            for k, v in list(six.iteritems(module.__dict__)):
+                if inspect.isclass(v) and v is not BaseHandler \
+                        and k !='MyHandler' and issubclass(v, BaseHandler):
+                    module.__dict__['__handler_cls__'] = v
+
         _class = module.__dict__.get('__handler_cls__')
         assert _class is not None, "need BaseHandler in project module"
 

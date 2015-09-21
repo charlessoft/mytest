@@ -97,6 +97,17 @@ class TaskDB(SQLiteMixin, SplitTableMixin, BaseTaskDB, BaseDB):
             result[status] = count
         return result
 
+    def replace(self, project, taskid, obj={}):
+        if project not in self.projects:
+            self._create_project(project)
+            self._list_project()
+        obj = dict(obj)
+        obj['taskid'] = taskid
+        obj['project'] = project
+        obj['updatetime'] = time.time()
+        tablename = self._tablename(project)
+        return self._replace(tablename, **self._stringify(obj))
+
     def insert(self, project, taskid, obj={}):
         if project not in self.projects:
             self._create_project(project)
