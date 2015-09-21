@@ -178,17 +178,3 @@
 			null
 
 
-ip:
-[(id, ip, port), ...]
-
-
-
-keywords:
-{
-	type: []
-}
-
-
-
-bloger:
-[(id, type, userid),...]

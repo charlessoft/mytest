@@ -22,7 +22,7 @@ class Setting(colander.MappingSchema):
     domain = colander.SchemaNode(colander.String())
     proxy_on = colander.SchemaNode(colander.Boolean())
     js_on = colander.SchemaNode(colander.Boolean())
-    max_recurrence = colander.SchemaNode(colander.Integer(), validator=colander.Range(0, 20))
+    max_depth = colander.SchemaNode(colander.Integer(), validator=colander.Range(0, 20))
     updatetime = colander.SchemaNode(colander.Float())
 
 class Settings(colander.SequenceSchema):

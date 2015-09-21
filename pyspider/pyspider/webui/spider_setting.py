@@ -16,13 +16,13 @@ setting_parser = reqparse.RequestParser()
 setting_parser.add_argument('domain', location='args', required=True)
 setting_parser.add_argument('proxy_on', location='args', type=bool, default=False)
 setting_parser.add_argument('js_on', location='args', type=bool, default=False)
-setting_parser.add_argument('max_recurrence', location='args', type=int, default=3)
+setting_parser.add_argument('max_depth', location='args', type=int, default=3)
 
 setting_fields = {
     'domain': fields.String,
     'proxy_on': fields.Boolean,
     'js_on': fields.Boolean,
-    'max_recurrence': fields.Integer,
+    'max_depth': fields.Integer,
     'updatetime': fields.Float,
 }
 
@@ -56,7 +56,7 @@ class SpiderSetting(SpiderSettingBase):
             'domain':deserialized['domain'],
             'proxy_on':deserialized['proxy_on'],
             'js_on':deserialized['js_on'],
-            'max_recurrence':deserialized['max_recurrence'],
+            'max_depth':deserialized['max_depth'],
             'updatetime': time.time(),
         }
 
