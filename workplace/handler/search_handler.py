@@ -3,10 +3,9 @@
 # Created on 2015-08-10 11:32:41
 # Project: SearchHandler
 
-from pyspider.libs.base_handler import *
-from pyspider.libs.url import _build_url
-from udb_handler import UDBHandler
-from helper import *
+from pyspider.libs.base_handler import every
+from handler.udb_handler import UDBHandler
+from handler.api import Api
 import time
 
 
@@ -18,62 +17,42 @@ class SearchHandler(UDBHandler):
     }
 
     UPDATE_SETTINGS_INTERVAL = 3600
+    UPDATE_KEYWORDS_INTERVAL = 3600
+    UPDATE_PROXIES_INTERVAL = 3600*12
     MAX_PAGE = 5
     LIST_ANCHOR_SEL = 'h3>a'
     NEXT_ANCHOR_SEL = 'a#next'
-
-    def __init__(self):
-        self.settings = {}
 
     def generate_urls(self):
         kw_urls = dict()
         for keyword in self.keywords:
             kw_urls[keyword] = list(self.build_urls(keyword))
         return kw_urls
-        
-    def loop(self, response):
-        self.crawl_list_page(response)
-        if response.save['cur_page'] < self.MAX_PAGE:
-            response.save['cur_page'] +=1
-            self.crawl_next_page(self, response)
 
     def crawl_list_page(self, response):
         for each in response.doc(self.LIST_ANCHOR_SEL).items():
             self.crawl(each.attr.href, callback=self.detail_page, bloomfilter_on=True)
 
-    def crawl_next_page(self, response, callback):
-        next_url = response.doc(self.NEXT_ANCHOR_SEL).attr.href
-        if next_url:
-            self.crawl(next_url, callback=self.loop, bloomfilter_on=True)
+        self.crawl_next_page(response)
 
-    def check_settings(self):
-        if not hasattr(self, 'last_update_settings'):
-            self.update_settings()
-        elif time.time() - self.last_update_settings > self.UPDATE_SETTINGS_INTERVAL:
-            self.update_settings()
-
-    def update_settings(self):
-        ''' get from server  '''
-        self.proxy_on = True
-        self.need_parse = True
-        self.max_depth = 3
-        self.keywords = [u'电力', u'电网|尼玛']
-        # self.target_urls = []
-        if self.proxy_on:
-            proxy_list = get_proxy_list()
-            self.proxy_manager = ProxyManager(proxy_list)
-        self.last_update_settings = time.time()
+    def crawl_next_page(self, response):
+        if response.save['cur_page'] < self.MAX_PAGE:
+            response.save['cur_page'] += 1
+            next_url = response.doc(self.NEXT_ANCHOR_SEL).attr.href
+            if next_url:
+                self.crawl(next_url, callback=self.crawl_list_page, save=response.save, bloomfilter_on=True)
 
     @every(minutes=5)
     def on_start(self):
-        self.check_settings()
+        ''' 可以将 self.check_update() 连同 on_start 移到UDBHandler，但是这样every 就不好设了'''
+        self.check_update()
         for kw, urls in self.generate_urls().items():
             context = {
                 'keyword':kw,
                 'cur_page': 0,
             }
             for url in urls:
-                self.crawl(url, callback=self.loop, save=context, force_update=True)
+                self.crawl(url, callback=self.crawl_list_page, save=context, force_update=True)
 
     def build_urls(self, keyword):
         '''
@@ -85,6 +64,7 @@ class SearchHandler(UDBHandler):
     def detail_page(self, response):
         return {
             "url": response.url,
+            "type": 'search',
             "title": response.doc('title').text(),
             "keyword": response.save.get('keyword')
         }

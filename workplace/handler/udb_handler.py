@@ -3,9 +3,11 @@
 
 
 from pyspider.libs.base_handler import BaseHandler
-from six
+from handler.helper import ProxyManager
+from handler.api import Api
 from pprint import pprint
 import time
+
 
 
 class UDBHandler(BaseHandler):
@@ -15,17 +17,73 @@ class UDBHandler(BaseHandler):
         }
     }
 
+    RESULT_FIELDS = ['url', 'type', 'html', 'title', 'text', 'authors', 'publish_time', 'keywords']
 
-    RESULT_FIELDS = ['url', 'html', 'title', 'text', 'authors', 'publish_date']
+    UPDATE_SETTINGS_INTERVAL = 3600
+    UPDATE_KEYWORDS_INTERVAL = 3600
+    UPDATE_PROXIES_INTERVAL = 3600*12
 
     def __init__(self):
+        self.api = Api()
+        self.update_settings()
+        self.update_keywords()
+        self.update_proxies()
+
+    def check_update(self):
+        if time.time() - self.last_update_settings > self.UPDATE_SETTINGS_INTERVAL:
+            self.update_settings()
+        if time.time() - self.last_update_keywords > self.UPDATE_KEYWORDS_INTERVAL:
+            self.update_settings()
+        if time.time() - self.last_update_proxies > self.UPDATE_PROXIES_INTERVAL:
+            self.update_settings()
+
+    def get_settings(self):
+        return self.api.get_settings()
+
+    def get_keywords(self):
+        return self.api.get_keywords()
+
+    def get_proxies(self):
+        return self.api.get_proxies()
+
+    def update_settings(self):
+        self.settings = self.get_settings()
         self.last_update_settings = time.time()
 
+    def update_keywords(self):
+        self.keywords = self.get_keywords()
+        self.last_update_keywords = time.time()
+
+    def update_proxies(self):
+        self.proxies = self.api.get_proxies()
+        self.proxy_manager = ProxyManager(self.proxies)
+        self.last_update_proxies = time.time()
+
+    def pick_proxy(self):
+        return self.proxy_manager.pick_one()
+
+    # def crawl(self, url, **kwargs):
+    #     if self.settings.get('proxy_on', False):
+    #         kwargs['proxy'] = self.proxy_manager.pick_one()
+    #     if self.settings.get('js_on', False):
+    #         kwargs['fetch_type'] = 'js'
+
+    #     return self.crawl(url, **kwargs)
 
     # def get_taskid(self, task):
     #     '''Generate taskid by information of task md5(url) by default, override me'''
     #     return md5string(task['url'])
 
+    def clean_result(self, result):
+        """ keep result in certain format """
+        for k in result.keys():
+            if k not in self.RESULT_FIELDS:
+                del result[k]
+
+        if 'publish_time' in result:
+            pass
+
+        return result
 
     def on_result(self, result):
         """Receiving returns from other callback, override me."""
@@ -35,14 +93,38 @@ class UDBHandler(BaseHandler):
         if self.is_debugger():
             pprint(result)
 
-        # keep fields format
+        if self.__env__.get('result_queue'):
+            self.__env__['result_queue'].put((self.task, self.clean_result(result)))
 
-        for k in result.keys():
-            if k not in self.RESULT_FIELDS:
-                del result[k]
 
-        if 'publish_date' in result:
-            pass
+class UDBListResultHandler(UDBHandler):
+
+    def on_result(self, result):
+        if not result:
+            return
+        assert self.task, "on_result can't outside a callback."
+        if self.is_debugger():
+            pprint(result)
+        
+        if self.__env__.get('result_queue'):
+            for r in result:
+                self.__env__['result_queue'].put((self.task, self.clean_result(result)))
+
+
+class UDBCommonHandler(UDBHandler):
+    def on_result(self, result):
+        """Receiving returns from other callback, override me."""
+        if not result:
+            return
+        assert self.task, "on_result can't outside a callback."
+        if self.is_debugger():
+            pprint(result)
 
         if self.__env__.get('result_queue'):
-            self.__env__['result_queue'].put((self.task, result))
+            if isinstance(result, (list, tuple)):
+                for r in result:
+                    self.__env__['result_queue'].put((self.task, self.clean_result(r)))
+            else:
+                self.__env__['result_queue'].put((self.task, self.clean_result(result)))
+
+

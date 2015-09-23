@@ -3,11 +3,9 @@
 # Created on 2015-08-10 11:32:41
 # Project: SearchHandler
 
-from pyspider.libs.base_handler import *
-from udb_handler import UDBHandler
-from helper import *
+from pyspider.libs.base_handler import every
+from handler.udb_handler import UDBHandler
 import time
-
 
 class AccountHandler(UDBHandler):
     crawl_config = {
@@ -17,39 +15,35 @@ class AccountHandler(UDBHandler):
     }
 
     UPDATE_SETTINGS_INTERVAL = 3600
+    UPDATE_KEYWORDS_INTERVAL = 3600
+    UPDATE_PROXIES_INTERVAL = 3600*12
+    UPDATE_ACCOUNTS_INTERVAL = 3600
     LIST_ANCHOR_SEL = 'a.news_lst_tab'
     NEXT_ANCHOR_SEL = ''
     JS_ON = False
 
     def __init__(self):
-        self.settings = {}
+        super(AccountHandler, self).__init__()
+        self.update_accounts()
+
+    def check_update(self):
+        super(AccountHandler, self).check_update()
+        if time.time() - self.last_update_accounts > self.UPDATE_ACCOUNTS_INTERVAL:
+            self.update_accounts()
+
+    def update_accounts(self):
+        self.accounts = self.api.get_accounts(tp=None)
+        self.last_update_accounts = time.time()
 
     def generate_urls(self):
         account_urls = dict()
-        for account in self.get_accounts():
+        for account in self.accounts:
             account_urls[account] = self.build_url(account)
         return account_urls
 
-    def check_settings(self):
-        if not hasattr(self, 'last_update_settings'):
-            self.update_settings()
-        elif time.time() - self.last_update_settings > self.UPDATE_SETTINGS_INTERVAL:
-            self.update_settings()
-
-    def update_settings(self):
-        ''' get from server  '''
-        self.proxy_on = True
-        self.need_parse = True
-        self.max_depth = 3
-        # self.target_urls = []
-        if self.proxy_on:
-            proxy_list = get_proxy_list()
-            self.proxy_manager = ProxyManager(proxy_list)
-        self.last_update_settings = time.time()
-
     @every(minutes=5)
     def on_start(self):
-        self.check_settings()
+        self.check_update()
         for account, url in self.generate_urls().items():
             context = {
                 'account':account,
@@ -60,21 +54,11 @@ class AccountHandler(UDBHandler):
     def crawl_list_page(self, response):
         for each in response.doc(self.LIST_ANCHOR_SEL).items():
             title = each.text().strip(' \n\r\t')
-            if title and any(title.find(kw) > -1 for kw in self.get_keywords()):
-                self.crawl(each.attr.href, callback=self.detail_page, bloomfilter_on=True)
+            if title and any(title.find(kw) > -1 for kw in self.keywords):
+                self.crawl(each.attr.href, callback=self.detail_page, save=response.save, bloomfilter_on=True)
 
-    def get_keywords(self):
-        # return []
-        raise NotImplementedError
-
-    def get_accounts(self):
-        # return []
-        raise NotImplementedError
-
-    def build_url(self, keyword):
+    def build_url(self, account):
         '''
-        1. return self.build_url(keyword, page_num) for page_num in xrange(max_page)
-        2. return self.build_url(keyword)
         '''
         raise NotImplementedError
 
@@ -82,5 +66,6 @@ class AccountHandler(UDBHandler):
         return {
             "url": response.url,
             "title": response.doc('title').text(),
-            "keyword": response.save.get('keyword')
+            "type": 'account',
+            "authors": response.save.get('account'),
         }
