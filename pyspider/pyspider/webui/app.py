@@ -16,6 +16,8 @@ from six.moves.urllib.parse import urljoin
 from flask import Flask
 from pyspider.fetcher import tornado_fetcher
 
+from sqlitedb_setting import *
+
 if os.name == 'nt':
     import mimetypes
     mimetypes.add_type("text/css", ".css", True)
@@ -91,12 +93,22 @@ app.secret_key = os.urandom(24)
 app.jinja_env.line_statement_prefix = '#'
 app.jinja_env.globals.update(builtins.__dict__)
 
+def init_localdb(sqlconn):
+    if sqlconn[0:6]== 'sqlite':
+        conn = sqlitedb_setting(sqlconn[9:])
+        # print conn.get_common_setting()
+    else:
+        pass
+    return conn
+
 app.config.update({
     'fetch': lambda x: tornado_fetcher.Fetcher(None, None, async=False).fetch(x)[1],
     'taskdb': None,
     'projectdb': None,
     'scheduler_rpc': None,
     'queues': dict(),
+    #'localdb': init_localdb('sqlite:///Users/tina/workspace/yr_prj/udb-spider/db/setting.db'),
+
 })
 
 
