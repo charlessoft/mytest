@@ -9,7 +9,7 @@ class Article(colander.MappingSchema):
     title = colander.SchemaNode(colander.String())
     text = colander.SchemaNode(colander.String())
     authors = colander.SchemaNode(colander.String())
-    publish_date = colander.SchemaNode(colander.String())
+    publish_time = colander.SchemaNode(colander.String())
     keywords = colander.SchemaNode(colander.String())
     tags = colander.SchemaNode(colander.String())
     updatetime = colander.SchemaNode(colander.Float())
@@ -18,12 +18,25 @@ class Article(colander.MappingSchema):
 class Articles(colander.SequenceSchema):
     article = Article()
 
+
 class Setting(colander.MappingSchema):
-    domain = colander.SchemaNode(colander.String())
-    proxy_on = colander.SchemaNode(colander.Boolean())
-    js_on = colander.SchemaNode(colander.Boolean())
-    max_depth = colander.SchemaNode(colander.Integer(), validator=colander.Range(0, 20))
-    updatetime = colander.SchemaNode(colander.Float())
+    url = colander.SchemaNode(colander.String())
+    proxy_on = colander.SchemaNode(colander.Boolean(), missing=False)
+    js_on = colander.SchemaNode(colander.Boolean(), missing=False)
+    max_depth = colander.SchemaNode(colander.Integer(), validator=colander.Range(0, 20), missing=2)
+
 
 class Settings(colander.SequenceSchema):
     setting = Setting()
+
+
+class Keywords(colander.SequenceSchema):
+    keyword = colander.SchemaNode(colander.String())
+
+
+class Accounts(colander.SequenceSchema):
+    account = colander.SchemaNode(colander.String())
+
+
+class Proxies(colander.SequenceSchema):
+    proxy = colander.SchemaNode(colander.String())

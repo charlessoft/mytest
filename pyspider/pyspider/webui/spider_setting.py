@@ -3,101 +3,94 @@
 
 from flask import request
 from flask.ext.restful import reqparse, abort, Resource, fields, marshal_with
-from bson.son import SON
-from pymongo import ASCENDING, DESCENDING
 import time
 import json
 
-from spider_serializers import Setting, Settings
-
+from spider_serializers import Settings, Keywords, Accounts, Proxies
+from .database import connect_database
 from .app import app, api
 
 setting_parser = reqparse.RequestParser()
-setting_parser.add_argument('domain', location='args', required=True)
+setting_parser.add_argument('settings', location='args', required=True)
 setting_parser.add_argument('proxy_on', location='args', type=bool, default=False)
 setting_parser.add_argument('js_on', location='args', type=bool, default=False)
 setting_parser.add_argument('max_depth', location='args', type=int, default=3)
 
 setting_fields = {
-    'domain': fields.String,
-    'proxy_on': fields.Boolean,
-    'js_on': fields.Boolean,
-    'max_depth': fields.Integer,
-    'updatetime': fields.Float,
+    'name': fields.String,
 }
 
 class SpiderSettingBase(Resource):
-    __database_name__ = 'spider'
-    __collection_name__ = 'setting'
-
     @property
-    def collection(self):
-        if hasattr(self, '_collection'):
-            return getattr(self, '_collection')
+    def db(self):
+        if hasattr(self, '_db'):
+            return getattr(self, '_db')
+        _db = connect_database(app.config['settingdb_url'])
+        setattr(self, '_db', _db)
+        return _db
 
-        resultdb = app.config['resultdb']
-        _collection = resultdb.conn[self.__database_name__][self.__collection_name__]
-        setattr(self, '_collection', _collection)
-        return _collection
+# @api.resource('/spider/settings/common')
+# class SpiderSettingsCommon(SpiderSettingBase):
+#     def get(self):
+#         result = self.db.get_common_settings()
+#         return result, 200 if result else 404
+#
+#     def put(self):
+#         deserialized = Settings().deserialize(json.loads(request.data))
+#         self.db.set_common_settings(request.data)
+#         return {}
+#
+# @api.resource('/spider/keywords/common')
+# class SpiderKeywordsCommon(SpiderSettingBase):
+#     def get(self):
+#         result = self.db.get_common_keywords()
+#         return result, 200 if result else 404
+#
+#     def put(self):
+#         deserialized = Settings().deserialize(json.loads(request.data))
+#         self.db.set_common_keywords(request.data)
+#         return {}
 
+@api.resource('/spider/settings/<tp>')
+class SpiderSettings(SpiderSettingBase):
+    def get(self, tp):
+        result = self.db.get_settings(tp)
+        return result, 200 if result else 404
 
-@api.resource('/spider/setting')
-class SpiderSetting(SpiderSettingBase):
+    def put(self, tp):
+        deserialized = Settings().deserialize(json.loads(request.data))
+        self.db.set_settings(tp, deserialized)
+        return {}
 
-    @marshal_with(setting_fields)
+@api.resource('/spider/keywords/<tp>')
+class SpiderKeywords(SpiderSettingBase):
+    def get(self, tp):
+        result = self.db.get_keywords(tp)
+        return result, 200 if result else 404
+
+    def put(self, tp):
+        deserialized = Keywords().deserialize(json.loads(request.data))
+        self.db.set_keywords(tp, deserialized)
+        return {}
+
+@api.resource('/spider/accounts/<tp>')
+class SpiderAccounts(SpiderSettingBase):
+    def get(self, tp):
+        result = self.db.get_accounts(tp)
+        return result, 200 if result else 404
+
+    def put(self, tp):
+        deserialized = Accounts().deserialize(json.loads(request.data))
+        self.db.set_accounts(tp, deserialized)
+        return {}
+
+@api.resource('/spider/proxies')
+class SpiderPorxies(SpiderSettingBase):
     def get(self):
-        args = setting_parser.parse_args()
-        result = self.collection.find_one({'domain': args['domain']})
+        result = self.db.get_proxies()
         return result, 200 if result else 404
 
     def put(self):
-        deserialized = Setting().deserialize(json.loads(request.data))
-        obj = {
-            'domain':deserialized['domain'],
-            'proxy_on':deserialized['proxy_on'],
-            'js_on':deserialized['js_on'],
-            'max_depth':deserialized['max_depth'],
-            'updatetime': time.time(),
-        }
-
-        try:
-            self.collection.update({'domain':deserialized['domain']}, {"$set": obj}, upsert=True)
-        except Exception as e:
-            return {'error_msg': repr(e)}, 500
-        else:
-            return {}
-
-    def delete(self):
-        args = setting_parser.parse_args()
-        result = self.collection.remove({'domain': args['domain']})
+        deserialized = Proxies().deserialize(json.loads(request.data))
+        self.db.set_proxies(deserialized)
         return {}
-
-@api.resource('/spider/setting/list')
-class SpiderSettingList(SpiderSettingBase):
-
-    @marshal_with(setting_fields)
-    def get(self):
-        return tuple(self.collection.find())
-
-    def put(self):
-        deserialized = Settings().deserialize(json.loads(request.data))
-        try:
-            for obj in deserialized:
-                self.collection.update({'domain': obj['domain']}, {"$set": obj}, upsert=True)
-        except Exception as e:
-            return {'error_msg': repr(e)}, 500
-        else:
-            return {}
-
-    def delete(self):
-        domain_list = json.loads(request.data)
-        if not isinstance(domain_list, list):
-            return {'error_msg': 'domain_list is not valid'}, 500
-
-        try:
-            for domain in domain_list:
-                self.collection.remove({'domain': domain})
-        except Exception as e:
-            return {'error_msg': repr(e)}, 500
-        else:
-            return {}

@@ -25,7 +25,7 @@ article_fields = {
     "title": fields.String,
     "text": fields.String,
     "authors": fields.String,
-    "publish_date": fields.String,
+    "publish_time": fields.String,
     'keywords': fields.String,
     'tags': fields.String,
     'updatetime': fields.Float,
