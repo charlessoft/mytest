@@ -9,7 +9,6 @@ from pprint import pprint
 import time
 
 
-
 class UDBHandler(BaseHandler):
     crawl_config = {
         'headers': {
@@ -22,6 +21,9 @@ class UDBHandler(BaseHandler):
     UPDATE_SETTINGS_INTERVAL = 3600
     UPDATE_KEYWORDS_INTERVAL = 3600
     UPDATE_PROXIES_INTERVAL = 3600*12
+
+    SETTING_TYPE = 'common'
+    KEYWORD_TYPE = 'common'
 
     def __init__(self):
         self.api = Api()
@@ -38,10 +40,10 @@ class UDBHandler(BaseHandler):
             self.update_settings()
 
     def get_settings(self):
-        return self.api.get_settings()
+        return self.api.get_settings(self.SETTING_TYPE)
 
     def get_keywords(self):
-        return self.api.get_keywords()
+        return self.api.get_keywords(self.KEYWORD_TYPE)
 
     def get_proxies(self):
         return self.api.get_proxies()
@@ -126,5 +128,3 @@ class UDBCommonHandler(UDBHandler):
                     self.__env__['result_queue'].put((self.task, self.clean_result(r)))
             else:
                 self.__env__['result_queue'].put((self.task, self.clean_result(result)))
-
-

@@ -20,9 +20,11 @@ class CommonSiteHandler(UDBHandler):
         }
     }
 
-    UPDATE_SETTINGS_INTERVAL = 3600
-    UPDATE_KEYWORDS_INTERVAL = 3600
-    UPDATE_PROXIES_INTERVAL = 3600*12
+    UPDATE_SETTINGS_INTERVAL = 60
+    UPDATE_KEYWORDS_INTERVAL = 60
+    UPDATE_PROXIES_INTERVAL = 60*12
+
+    SETTING_TYPE = 'common'
     
     parser = newspaperEngine()
 

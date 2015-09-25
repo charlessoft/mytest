@@ -21,6 +21,7 @@ class AccountHandler(UDBHandler):
     LIST_ANCHOR_SEL = 'a.news_lst_tab'
     NEXT_ANCHOR_SEL = ''
     JS_ON = False
+    ACCOUNT_TYPE = None
 
     def __init__(self):
         super(AccountHandler, self).__init__()
@@ -32,7 +33,7 @@ class AccountHandler(UDBHandler):
             self.update_accounts()
 
     def update_accounts(self):
-        self.accounts = self.api.get_accounts(tp=None)
+        self.accounts = self.api.get_accounts(tp=self.ACCOUNT_TYPE)
         self.last_update_accounts = time.time()
 
     def generate_urls(self):

@@ -2,14 +2,17 @@
 # -*- encoding: utf-8 -*-
 import requests
 import logging
+from pyspider.webui
+
+from pyspider.webui.database.const import AccountTypeName, KeywordTypeName, SettingTypeName
 
 logger = logging.getLogger('spider_api')
 
-PROXY_API_URL = ''
-KEYWORD_API_URL = ''
-SETTING_API_URL = ''
-ACCOUNT_API_URL = ''
-COMMON_SETTING_API_URL = ''
+API_BASE_URL = 'http://localhost:5000/'
+PROXY_API_URL = API_BASE_URL + 'spider/proxies/'
+KEYWORD_API_URL = API_BASE_URL + 'spider/keywords/'
+SETTING_API_URL = API_BASE_URL + 'spider/settings/'
+ACCOUNT_API_URL = API_BASE_URL + 'spider/accounts/'
 
 
 def result_on_error(default=None):
@@ -20,13 +23,14 @@ def result_on_error(default=None):
             except Exception as e:
                 result = default
             return result
+
         return wrapper
+
     return wrap
 
 
 class SpiderApi(object):
-
-    def _api_get(self, url, params):
+    def _api_get(self, url, params=None):
         params = params or {}
         r = requests.get(url, params=params)
         r.raise_for_status()
@@ -39,23 +43,23 @@ class SpiderApi(object):
         return proxies
 
     @result_on_error(default=[])
-    def get_keywords(self):
-        keywords = self._api_get(KEYWORD_API_URL)
+    def get_keywords(self, tp=KeywordTypeName.Common):
+        keywords = self._api_get(KEYWORD_API_URL, tp)
         return keywords
 
     @result_on_error(default={})
-    def get_settings(self, tp=None):
-        settings = self._api_get(SETTING_API_URL, params={'type': tp})
+    def get_settings(self, tp=SettingTypeName.Common):
+        settings = self._api_get(SETTING_API_URL + tp)
         return settings
 
     @result_on_error(default={})
-    def get_accounts(self, tp=None):
-        accounts = self._api_get(ACCOUNT_API_URL, params={'type': tp})
+    def get_accounts(self, tp):
+        accounts = self._api_get(ACCOUNT_API_URL + tp)
         return accounts
 
     @result_on_error(default={})
     def get_common_settings(self):
-        list_settings = self._api_get(COMMON_SETTING_API_URL)
+        list_settings = self._api_get(KEYWORD_API_URL + SettingTypeName.Common)
         dict_settings = {}
         for item in list_settings:
             url = item['url']
@@ -66,7 +70,6 @@ class SpiderApi(object):
 
 
 class FakeSpiderApi(object):
-
     def get_proxies(self):
         proxy_list = []
         return proxy_list
@@ -79,9 +82,9 @@ class FakeSpiderApi(object):
         accounts = [u'哈哈']
         return accounts
 
-    def get_settings(self,tp=None):
+    def get_settings(self, tp=None):
         settings = {
-            'proxy_on' : False,
+            'proxy_on': False,
             'js_on': False
         }
         return settings
@@ -112,4 +115,4 @@ class FakeSpiderApi(object):
         return dict_settings
 
 
-Api = FakeSpiderApi
+Api = SpiderApi
