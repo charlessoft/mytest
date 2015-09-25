@@ -45,7 +45,8 @@ class AccountHandler(UDBHandler):
     @every(minutes=5)
     def on_start(self):
         self.check_update()
-        for account, url in self.generate_urls().items():
+        account_urls = self.generate_urls().items()
+        for account, url in account_urls:
             context = {
                 'account':account,
                 'cur_page': 0,

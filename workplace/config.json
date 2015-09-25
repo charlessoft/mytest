@@ -1,0 +1,12 @@
+{
+  "taskdb": "mongodb+taskdb://localhost:27017/taskdb",
+  "projectdb": "sqlite+projectdb:///projectdb.db",
+  "resultdb": "mongodb+resultdb://localhost:27017/resultdb",
+  "message_queue": "redis://localhost:6379/0",
+  "phantomjs_proxy": "localhost:25555",
+  "webui": {
+    "username": "admin",
+    "password": "123123",
+    "need-auth": false
+  }
+}

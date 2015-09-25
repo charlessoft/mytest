@@ -2,17 +2,19 @@
 # -*- encoding: utf-8 -*-
 import requests
 import logging
-from pyspider.webui
 
 from pyspider.webui.database.const import AccountTypeName, KeywordTypeName, SettingTypeName
+from pyspider.webui.database import connect_database
 
 logger = logging.getLogger('spider_api')
 
 API_BASE_URL = 'http://localhost:5000/'
-PROXY_API_URL = API_BASE_URL + 'spider/proxies/'
+PROXY_API_URL = API_BASE_URL + 'spider/proxies'
 KEYWORD_API_URL = API_BASE_URL + 'spider/keywords/'
 SETTING_API_URL = API_BASE_URL + 'spider/settings/'
 ACCOUNT_API_URL = API_BASE_URL + 'spider/accounts/'
+
+DB_URL = 'mongodb://10.142.49.230:27088/'
 
 
 def result_on_error(default=None):
@@ -29,10 +31,13 @@ def result_on_error(default=None):
     return wrap
 
 
+SpiderDBApi = lambda: connect_database(DB_URL)
+
+
 class SpiderApi(object):
     def _api_get(self, url, params=None):
         params = params or {}
-        r = requests.get(url, params=params)
+        r = requests.get(url, params=params, timeout=30)
         r.raise_for_status()
         result = r.json()
         return result
@@ -59,7 +64,7 @@ class SpiderApi(object):
 
     @result_on_error(default={})
     def get_common_settings(self):
-        list_settings = self._api_get(KEYWORD_API_URL + SettingTypeName.Common)
+        list_settings = self._api_get(SETTING_API_URL + SettingTypeName.Common)
         dict_settings = {}
         for item in list_settings:
             url = item['url']
@@ -115,4 +120,9 @@ class FakeSpiderApi(object):
         return dict_settings
 
 
-Api = SpiderApi
+Api = SpiderDBApi
+
+if __name__ == '__main__':
+    api = Api()
+    settings = api.get_common_settings()
+    print settings

@@ -5,7 +5,7 @@
 from six.moves.urllib.parse import urlparse
 import time
 
-from pyspider.libs.base_handler import every
+from pyspider.libs.base_handler import every, config
 from pyspider.libs.url import _build_url
 
 from handler.udb_handler import UDBHandler
@@ -41,11 +41,11 @@ class CommonSiteHandler(UDBHandler):
 
         # 2.直接使用url, 由此url为入口的所有url都使用一个配置，判断消耗少
         save = dict(kwargs.get('save', {}))
-        url = save.get('url', None)
-        if url:
-            if self.settings.get(url, {}).get('proxy_on', False):
+        base_url = save.get('base_url', None)
+        if base_url:
+            if self.settings.get(base_url, {}).get('proxy_on', False):
                 kwargs['proxy'] = self.proxy_manager.pick_one()
-            if self.settings.get(url, {}).get('js_on', False):
+            if self.settings.get(base_url, {}).get('js_on', False):
                 kwargs['fetch_type'] = 'js'
 
             cur_depth = save.get('cur_depth', None)
@@ -60,17 +60,19 @@ class CommonSiteHandler(UDBHandler):
 
         return super(CommonSiteHandler, self).crawl(url, **kwargs)
 
-    @every(minutes=5)
+    @every(minutes=1)
     def on_start(self):
         self.check_update()
-        for url in self.generate_urls():
+        urls = self.generate_urls()
+        for url in urls:
             context = {
-                'url': url,
+                'base_url': url,
                 # 'proxy_on': self.settings[parsed.hostname]['proxy_on'],
                 # 'hostname': urlparse(url).hostname,
             }
             self.crawl(url, callback=self.index_page, save=context, force_update=True)
 
+    @config(age=10 * 24 * 60 * 60)
     def index_page(self, response):
         cur_depth = response.save.get('cur_depth', 0)
         if cur_depth > 0:

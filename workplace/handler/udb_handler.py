@@ -83,7 +83,12 @@ class UDBHandler(BaseHandler):
                 del result[k]
 
         if 'publish_time' in result:
-            pass
+            if result['publish_time']:
+                result['publish_time'] = float(result['publish_time']) * 1000
+            else:
+                result['publish_time'] = 0
+
+        result['update_time'] = time.time() * 1000
 
         return result
 

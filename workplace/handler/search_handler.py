@@ -46,7 +46,8 @@ class SearchHandler(UDBHandler):
     def on_start(self):
         ''' 可以将 self.check_update() 连同 on_start 移到UDBHandler，但是这样every 就不好设了'''
         self.check_update()
-        for kw, urls in self.generate_urls().items():
+        kw_urls = self.generate_urls().items()
+        for kw, urls in kw_urls:
             context = {
                 'keyword':kw,
                 'cur_page': 0,
