@@ -123,7 +123,14 @@ class SpiderSettingDB(BaseDB):
         return self.setting.set(KeywordTypeName.Common, value)
 
     def get_common_settings(self):
-        return self.setting.get(SettingTypeName.Common)
+        list_settings = self.setting.get(SettingTypeName.Common)
+        dict_settings = {}
+        for item in list_settings:
+            url = item['url']
+            del item['url']
+            dict_settings[url] = item
+
+        return dict_settings
 
     def set_common_settings(self, value):
         return self.setting.set(SettingTypeName.Common, value)

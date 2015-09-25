@@ -112,10 +112,12 @@ class BaseHandlerMeta(type):
         for each in attrs.values():
             if inspect.isfunction(each) and getattr(each, 'is_cronjob', False):
                 cron_jobs.append(each)
-                # fractions.gcd Return the greatest common divisor of the integers a and b
-                # >>> fractions.gcd(36,24)
-                # 12
                 min_tick = fractions.gcd(min_tick, each.tick)
+
+        # may cause excute cron_jobs multiple times, becareful!
+        # for each in bases:
+        #     cron_jobs.extend(each._cron_jobs)
+
         newcls = type.__new__(cls, name, bases, attrs)
         newcls._cron_jobs = cron_jobs
         newcls._min_tick = min_tick
