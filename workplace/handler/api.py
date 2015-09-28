@@ -31,8 +31,39 @@ def result_on_error(default=None):
     return wrap
 
 
-SpiderDBApi = lambda: connect_database(DB_URL)
+class SpiderDBApi(object):
+    def __init__(self):
+        self.db = connect_database(DB_URL)
 
+    @result_on_error(default=[])
+    def get_proxies(self):
+        return self.db.get_proxies()
+
+    @result_on_error(default=[])
+    def get_keywords(self, tp=KeywordTypeName.Common):
+        keywords = self.db.get_keywords(tp)
+        return keywords
+
+    @result_on_error(default={})
+    def get_settings(self, tp=SettingTypeName.Common):
+        settings = self.db.get_settings(tp)
+        return settings
+
+    @result_on_error(default={})
+    def get_accounts(self, tp):
+        accounts = self.db.get_accounts(tp)
+        return accounts
+
+    @result_on_error(default={})
+    def get_common_settings(self):
+        list_settings = self.db.get_settings(SettingTypeName.Common)
+        dict_settings = {}
+        for item in list_settings:
+            url = item['url']
+            del item['url']
+            dict_settings[url] = item
+
+        return dict_settings
 
 class SpiderApi(object):
     def _api_get(self, url, params=None):
