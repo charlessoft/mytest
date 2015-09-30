@@ -5,6 +5,8 @@ from flask import request
 from flask.ext.restful import reqparse, abort, Resource, fields, marshal_with
 import time
 import json
+import colander
+
 
 from spider_serializers import Settings, Keywords, Accounts, Proxies
 from .database import connect_database
@@ -58,14 +60,13 @@ class SpiderSettings(SpiderSettingBase):
         return result, 200 if result else 404
 
     def put(self, tp):
-        # try:
-        #       schema.deserialize(cstruct)
-        # except colander.Invalid, e:
-        #     errors = e.asdict()
-        #     print errors
-        deserialized = Settings().deserialize(json.loads(request.data))
-        self.db.set_settings(tp, deserialized)
-        return {}
+        try:
+            deserialized = Settings().deserialize(json.loads(request.data))
+            self.db.set_settings(tp, deserialized)
+            return {}
+        except colander.Invalid, e:
+            errors = e.asdict()
+            return errors, 500
 
 @api.resource('/spider/keywords/<tp>')
 class SpiderKeywords(SpiderSettingBase):

@@ -16,6 +16,7 @@ from six.moves.urllib.parse import urljoin
 from flask import Flask
 from pyspider.fetcher import tornado_fetcher
 
+
 if os.name == 'nt':
     import mimetypes
     mimetypes.add_type("text/css", ".css", True)

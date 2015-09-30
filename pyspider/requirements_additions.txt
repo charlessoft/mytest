@@ -1,0 +1,4 @@
+Flask-RESTful==0.3.4
+colander
+newspaper
+goose-extractor
