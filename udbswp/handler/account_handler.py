@@ -4,7 +4,7 @@
 # Project: SearchHandler
 
 from pyspider.libs.base_handler import every
-from handler.udb_handler import UDBHandler
+from udbswp.handler.udb_handler import UDBHandler
 import time
 
 class AccountHandler(UDBHandler):

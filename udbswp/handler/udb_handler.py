@@ -3,10 +3,15 @@
 
 
 from pyspider.libs.base_handler import BaseHandler
-from handler.helper import ProxyManager
-from handler.api import Api
+from udbswp.handler.helper import ProxyManager
+from udbswp.handler.api import Api
+from udbswp import config
 from pprint import pprint
 import time
+import ujson
+
+DEBUG = getattr(config, 'DEBUG', True)
+UDB_RESULT_QUEUE_NAME = getattr(config, 'UDB_RESULT_QUEUE_NAME', 'udb_result')
 
 
 class UDBHandler(BaseHandler):
@@ -100,8 +105,15 @@ class UDBHandler(BaseHandler):
         if self.is_debugger():
             pprint(result)
 
-        if self.__env__.get('result_queue'):
-            self.__env__['result_queue'].put((self.task, self.clean_result(result)))
+        result_queue = self.__env__.get('result_queue')
+
+        if result_queue:
+            cleaned_result = self.clean_result(result)
+            result_queue.put((self.task, cleaned_result))
+
+            # pack obj by ujson
+            # if not DEBUG hasattr(result_queue, 'redis'):
+            #     result_queue.redis.rpush(UDB_RESULT_QUEUE_NAME, ujson.dumps(cleaned_result))
 
 
 class UDBListResultHandler(UDBHandler):
@@ -112,7 +124,7 @@ class UDBListResultHandler(UDBHandler):
         assert self.task, "on_result can't outside a callback."
         if self.is_debugger():
             pprint(result)
-        
+
         if self.__env__.get('result_queue'):
             for r in result:
                 self.__env__['result_queue'].put((self.task, self.clean_result(result)))

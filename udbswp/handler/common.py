@@ -8,8 +8,8 @@ import time
 from pyspider.libs.base_handler import every, config
 from pyspider.libs.url import _build_url
 
-from handler.udb_handler import UDBHandler
-from atlproc import newspaperEngine
+from udbswp.handler.udb_handler import UDBHandler
+from udbswp.atlproc import newspaperEngine
 
 
 
@@ -25,7 +25,7 @@ class CommonSiteHandler(UDBHandler):
     UPDATE_PROXIES_INTERVAL = 60*12
 
     SETTING_TYPE = 'common'
-    
+
     parser = newspaperEngine()
 
     def get_settings(self):
@@ -82,7 +82,7 @@ class CommonSiteHandler(UDBHandler):
                     self.crawl(each.attr.href, callback=self.index_page, save=response.save)
         else:
             return self.parse(response)
-            
+
     def parse(self, response):
         article = self.parser.parse(response.text)
         return {

@@ -10,11 +10,14 @@ def get_setting_by_domain(domain):
     return {}
 
 
+
 class ProxyManager(object):
     def __init__(self, proxies=[]):
         self.replace(proxies)
 
     def replace(self, proxies):
+        if not proxies:
+            proxies = []
         self.proxies = list(proxies)
         self.record = {}
         self._cur = 0

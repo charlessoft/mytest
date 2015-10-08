@@ -53,6 +53,20 @@ class SpiderSettingBase(Resource):
 #         self.db.set_common_keywords(request.data)
 #         return {}
 
+
+def proper_error(func):
+    def wrapper(*args, **kwargs):
+        try:
+            result = func(*args, **kwargs)
+            return
+        except colander.Invalid, e:
+            errors = e.asdict()
+            return errors, 500
+        except Exception as e:
+            return
+    return wrapper
+
+
 @api.resource('/spider/settings/<tp>')
 class SpiderSettings(SpiderSettingBase):
     def get(self, tp):
@@ -66,6 +80,7 @@ class SpiderSettings(SpiderSettingBase):
             return {}
         except colander.Invalid, e:
             errors = e.asdict()
+
             return errors, 500
 
 @api.resource('/spider/keywords/<tp>')

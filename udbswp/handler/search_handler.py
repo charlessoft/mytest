@@ -4,8 +4,8 @@
 # Project: SearchHandler
 
 from pyspider.libs.base_handler import every
-from handler.udb_handler import UDBHandler
-from handler.api import Api
+from udbswp.handler.udb_handler import UDBHandler
+from udbswp.handler.api import Api
 import time
 
 

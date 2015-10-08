@@ -6,15 +6,17 @@ import logging
 from pyspider.webui.database.const import AccountTypeName, KeywordTypeName, SettingTypeName
 from pyspider.webui.database import connect_database
 
+from udbswp import config
+
 logger = logging.getLogger('spider_api')
 
-API_BASE_URL = 'http://localhost:5000/'
+API_BASE_URL = getattr(config, 'API_BASE_URL', 'http://localhost:5000/')
 PROXY_API_URL = API_BASE_URL + 'spider/proxies'
 KEYWORD_API_URL = API_BASE_URL + 'spider/keywords/'
 SETTING_API_URL = API_BASE_URL + 'spider/settings/'
 ACCOUNT_API_URL = API_BASE_URL + 'spider/accounts/'
 
-DB_URL = 'mongodb://10.142.49.230:27088/'
+API_DB_URL = getattr(config, 'API_DB_URL', 'mongodb://10.142.49.230:27088/')
 
 
 def result_on_error(default=None):
@@ -33,7 +35,7 @@ def result_on_error(default=None):
 
 class SpiderDBApi(object):
     def __init__(self):
-        self.db = connect_database(DB_URL)
+        self.db = connect_database(API_DB_URL)
 
     @result_on_error(default=[])
     def get_proxies(self):
