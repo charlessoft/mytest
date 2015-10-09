@@ -21,7 +21,7 @@ class UDBHandler(BaseHandler):
         }
     }
 
-    RESULT_FIELDS = ['url', 'type', 'html', 'title', 'text', 'authors', 'publish_time', 'keywords']
+    RESULT_FIELDS = ['url', 'type', 'title', 'text', 'authors', 'publish_time', 'keywords']
 
     UPDATE_SETTINGS_INTERVAL = 3600
     UPDATE_KEYWORDS_INTERVAL = 3600
@@ -89,11 +89,14 @@ class UDBHandler(BaseHandler):
 
         if 'publish_time' in result:
             if result['publish_time']:
-                result['publish_time'] = float(result['publish_time']) * 1000
+                try:
+                    result['publish_time'] = int(result['publish_time'])
+                except:
+                    result['publish_time'] = 0
             else:
                 result['publish_time'] = 0
 
-        result['update_time'] = time.time() * 1000
+        result['update_time'] = int(time.time())
 
         return result
 
