@@ -10,7 +10,7 @@ from pprint import pprint
 import time
 import ujson
 
-DEBUG = getattr(config, 'DEBUG', True)
+ENABLE_JSON_RESULT = getattr(config, 'ENABLE_JSON_RESULT', False)
 UDB_RESULT_QUEUE_NAME = getattr(config, 'UDB_RESULT_QUEUE_NAME', 'udb_result')
 
 
@@ -115,8 +115,8 @@ class UDBHandler(BaseHandler):
             result_queue.put((self.task, cleaned_result))
 
             # pack obj by ujson
-            # if not DEBUG hasattr(result_queue, 'redis'):
-            #     result_queue.redis.rpush(UDB_RESULT_QUEUE_NAME, ujson.dumps(cleaned_result))
+            if ENABLE_JSON_RESULT and hasattr(result_queue, 'redis'):
+                result_queue.redis.rpush(UDB_RESULT_QUEUE_NAME, ujson.dumps(cleaned_result))
 
 
 class UDBListResultHandler(UDBHandler):

@@ -1,6 +1,7 @@
 *.py[cod]
 data/*
 venv
+udbswp/config.py
 
 # C extensions
 *.so
