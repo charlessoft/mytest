@@ -1,0 +1,26 @@
+Fri, 09 Oct 2015 09:10:16 tengxun_weibo_login.py[line:154] INFO init
+Fri, 09 Oct 2015 09:10:16 connectionpool.py[line:203] INFO Starting new HTTP connection (1): t.qq.com
+Fri, 09 Oct 2015 09:10:16 connectionpool.py[line:383] DEBUG "GET /login.php HTTP/1.1" 200 7344
+Fri, 09 Oct 2015 09:10:17 tengxun_weibo_login.py[line:238] INFO ===[t_qq_login_page] ok===
+Fri, 09 Oct 2015 09:10:17 tengxun_weibo_login.py[line:240] DEBUG xlogin_url: [t_qq_login_page]
+
+Fri, 09 Oct 2015 09:10:17 tengxun_weibo_login.py[line:204] INFO cookie:
+Fri, 09 Oct 2015 09:10:17 tengxun_weibo_login.py[line:207] DEBUG wbilang_10000=zh_CN;
+Fri, 09 Oct 2015 09:10:17 connectionpool.py[line:735] INFO Starting new HTTPS connection (1): xui.ptlogin2.qq.com
+Fri, 09 Oct 2015 09:10:25 connectionpool.py[line:383] DEBUG "GET /cgi-bin/xlogin?appid=46000101&style=23&lang=&low_login=1&hide_border=1&hide_title_bar=1&hide_close_icon=1&border_radius=1&self_regurl=http%3A//reg.t.qq.com/index.php&proxy_url=http://t.qq.com/proxy_t.html&s_url=http%3A%2F%2Ft.qq.com%2F&daid=6 HTTP/1.1" 200 7929
+Fri, 09 Oct 2015 09:10:25 tengxun_weibo_login.py[line:263] INFO ===[xlogin_iframe] ok===
+Fri, 09 Oct 2015 09:10:25 tengxun_weibo_login.py[line:275] INFO ptui_ver_js_url:https://xui.ptlogin2.qq.com/ptui_ver.js?v=0.27185671567&ptui_identifier=000D5A63AFD8E43E31F56095BF5ABDAC41EDDBFB1BD451D648BD1F54
+Fri, 09 Oct 2015 09:10:25 tengxun_weibo_login.py[line:318] DEBUG ===[check] ok===
+Fri, 09 Oct 2015 09:10:25 connectionpool.py[line:735] INFO Starting new HTTPS connection (1): ssl.ptlogin2.qq.com
+Fri, 09 Oct 2015 09:10:26 connectionpool.py[line:383] DEBUG "GET /check?u1=http%3A%2F%2Ft.qq.com%2F&regmaster=&uid=7671557&pt_tea=1&js_ver=10315&pt_vcode=1&js_tpe=1&appid=46000101&uin=7671557&login_sig=8laecP-3UvoMlxUsATZCMdPbeyk7cPvEa%2A7xjL3bbOa7Q02x6vNBFBhBHwr9UvoT HTTP/1.1" 200 None
+Fri, 09 Oct 2015 09:10:26 tengxun_weibo_login.py[line:323] INFO ===[check] ok===
+Fri, 09 Oct 2015 09:10:26 tengxun_weibo_login.py[line:371] INFO pt_uistyle=23&js_ver=10135&g=1&ptredirect=1&js_type=1&pt_randsalt=0&ptlang=2052&u1=http%3A%2F%2Ft.qq.com&pt_verifysession_v1=dd29f90fe2625fd08b5b986b4fc0d8a3bfd7a1b854a79f9653a4238535367607aefa1f2c1a5a769668205211c9a5b485e8ff963d8ae3b232&u=7671557&t=1&from_ui=1&pt_vcode_v1=0&action=6-40-14443530262&low_login_hour=720&daid=6&h=1&login_sig=8laecP-3UvoMlxUsATZCMdPbeyk7cPvEa%2A7xjL3bbOa7Q02x6vNBFBhBHwr9UvoT&aid=46000101&low_login_enable=1
+Fri, 09 Oct 2015 09:10:26 connectionpool.py[line:383] DEBUG "GET /login?pt_uistyle=23&js_ver=10135&g=1&ptredirect=1&js_type=1&pt_randsalt=0&ptlang=2052&u1=http%3A%2F%2Ft.qq.com&pt_verifysession_v1=dd29f90fe2625fd08b5b986b4fc0d8a3bfd7a1b854a79f9653a4238535367607aefa1f2c1a5a769668205211c9a5b485e8ff963d8ae3b232&u=7671557&t=1&from_ui=1&pt_vcode_v1=0&action=6-40-14443530262&low_login_hour=720&daid=6&h=1&login_sig=8laecP-3UvoMlxUsATZCMdPbeyk7cPvEa%2A7xjL3bbOa7Q02x6vNBFBhBHwr9UvoT&aid=46000101&low_login_enable=1&p=iG-GX1eWbS2U4Sc1ENzf3weEgv*T8J9xU-xPEuWNp5Dqj*ZOtZkfwdD25T-SqY*i9I6J*GfyPEd7k*-gH1y1Wk6*YB-Bav8*Pg1DG-iMw3fpDdVHQ7b*2ZGi6eJPhJoOfBF5jNZZArnp6FYmhYpUDyOPZVDa7HMdWu1hs8K2UTkw*aVBWSHUpUwQMuBJLwSKTo9UjUVqUrlQNIcz7AB0yg__&verifycode=!MGW& HTTP/1.1" 200 None
+Fri, 09 Oct 2015 09:10:26 tengxun_weibo_login.py[line:400] INFO [login] ok
+Fri, 09 Oct 2015 09:10:26 tengxun_weibo_login.py[line:401] INFO ptuiCB('0','0','http://ptlogin4.t.qq.com/check_sig?pttype=1&uin=7671557&service=login&nodirect=0&ptsigx=1ba2d3ccd8279fc846ece866e2dbe998249414219b691c5b024de854b47c50ae6c2acd8e58fd2a074c6ca0af29df2ee70782bd546a0400e19af7ed982557403b&s_url=http%3A%2F%2Ft.qq.com&f_url=&ptlang=2052&ptredirect=101&aid=46000101&daid=6&j_later=0&low_login_hour=720&regmaster=0&pt_login_type=1&pt_aid=0&pt_aaid=0&pt_light=0&pt_3rd_aid=0','1','登录成功！', '\\(^o^)\/');
+ 
+Fri, 09 Oct 2015 09:10:26 connectionpool.py[line:203] INFO Starting new HTTP connection (1): ptlogin4.t.qq.com
+Fri, 09 Oct 2015 09:10:26 connectionpool.py[line:383] DEBUG "GET /check_sig?pttype=1&uin=7671557&service=login&nodirect=0&ptsigx=1ba2d3ccd8279fc846ece866e2dbe998249414219b691c5b024de854b47c50ae6c2acd8e58fd2a074c6ca0af29df2ee70782bd546a0400e19af7ed982557403b&s_url=http%3A%2F%2Ft.qq.com&f_url=&ptlang=2052&ptredirect=101&aid=46000101&daid=6&j_later=0&low_login_hour=720&regmaster=0&pt_login_type=1&pt_aid=0&pt_aaid=0&pt_light=0&pt_3rd_aid=0 HTTP/1.1" 302 None
+Fri, 09 Oct 2015 09:10:26 connectionpool.py[line:383] DEBUG "GET / HTTP/1.1" 302 20
+Fri, 09 Oct 2015 09:10:26 connectionpool.py[line:383] DEBUG "GET /fjCharles HTTP/1.1" 200 25183
+Fri, 09 Oct 2015 09:10:27 tengxun_weibo_login.py[line:428] INFO [check_sig_url] ok
