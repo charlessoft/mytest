@@ -110,7 +110,7 @@ class BaseFilter(object):
 
 class RedisBloomFilter(BaseFilter):
 	def __init__(self, key, capacity=100000, error_rate=0.001, host='127.0.0.1', port=6379, db=0, password=''):
-		super(RedisBloomFilter, self).__init__()	
+		super(RedisBloomFilter, self).__init__()
 		self.bf = pyreBloom.BloomFilter(key, capacity=capacity, error_rate=error_rate, host='127.0.0.1', port=6379, db=0)
 
 	def add(self, value):
@@ -135,9 +135,8 @@ class BloomFilter(BaseFilter):
 		self.key = key
 		self.path = os.path.join(store_dir, key)
 
-		self.fromfile()
-
 		self.bf = pybloom.BloomFilter(capacity=capacity, error_rate=error_rate)
+        # self.fromfile()
 
 
 	def add(self, value):
@@ -167,7 +166,7 @@ class BloomFilter(BaseFilter):
 				with open(self.path, 'rb') as f:
 					self.bf = self.bf.__class__.fromfile(f)
 			except Exception as e:
-				print('BloomFilter fromfile error: %s' % e) 
+				print('BloomFilter fromfile error: %s' % e)
 			else:
 				print('BloomFilter load data from: %s' % self.path)
 

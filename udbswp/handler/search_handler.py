@@ -22,6 +22,18 @@ class SearchHandler(UDBHandler):
     MAX_PAGE = 5
     LIST_ANCHOR_SEL = 'h3>a'
     NEXT_ANCHOR_SEL = 'a#next'
+    PROXY_ON = False
+    JS_ON = False
+
+
+    def crawl(self, url, **kwargs):
+        if self.PROXY_ON:
+            kwargs['proxy'] = self.proxy_manager.pick_one()
+
+        if self.JS_ON:
+            kwargs['fetch_type'] = 'js'
+
+        return super(SearchHandler, self).crawl(url, **kwargs)
 
     def generate_urls(self):
         kw_urls = dict()
@@ -30,8 +42,9 @@ class SearchHandler(UDBHandler):
         return kw_urls
 
     def crawl_list_page(self, response):
+        self.check(response)
         for each in response.doc(self.LIST_ANCHOR_SEL).items():
-            self.crawl(each.attr.href, callback=self.detail_page, bloomfilter_on=True)
+            self.crawl(each.attr.href, callback=self.detail_page, save=response.save, cookies=response.cookies, bloomfilter_on=True)
 
         self.crawl_next_page(response)
 
@@ -40,7 +53,7 @@ class SearchHandler(UDBHandler):
             response.save['cur_page'] += 1
             next_url = response.doc(self.NEXT_ANCHOR_SEL).attr.href
             if next_url:
-                self.crawl(next_url, callback=self.crawl_list_page, save=response.save, bloomfilter_on=True)
+                self.crawl(next_url, callback=self.crawl_list_page, save=response.save, cookies=response.cookies, bloomfilter_on=True)
 
     @every(minutes=5)
     def on_start(self):
@@ -63,9 +76,13 @@ class SearchHandler(UDBHandler):
         raise NotImplementedError
 
     def detail_page(self, response):
+        self.check(response)
         return {
             "url": response.url,
             "type": 'search',
             "title": response.doc('title').text(),
             "keyword": response.save.get('keyword')
         }
+
+    def check(self, response):
+        pass

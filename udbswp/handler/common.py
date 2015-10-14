@@ -31,8 +31,8 @@ class CommonSiteHandler(UDBHandler):
     def get_settings(self):
         return self.api.get_common_settings()
 
-    def generate_urls(self):
-        return self.settings.keys()
+    def generate_urls_with_extra(self):
+        return  [(k,v.get('extra')) for k, v in self.settings.items()]
 
     def crawl(self, url, **kwargs):
         # 1. 直接使用初始入口配置，当配置更新后 正在抓取的所有url以及由这些url产生的子url还会使用旧的配置。
@@ -60,13 +60,15 @@ class CommonSiteHandler(UDBHandler):
 
         return super(CommonSiteHandler, self).crawl(url, **kwargs)
 
-    @every(minutes=1)
+    @every(minutes=15)
     def on_start(self):
         self.check_update()
-        urls = self.generate_urls()
-        for url in urls:
+
+        for url, data in self.settings.items():
             context = {
                 'base_url': url,
+                'source': data.get('name', '')
+                'extra': data.get('extra', '')
                 # 'proxy_on': self.settings[parsed.hostname]['proxy_on'],
                 # 'hostname': urlparse(url).hostname,
             }
@@ -85,7 +87,8 @@ class CommonSiteHandler(UDBHandler):
 
     def parse(self, response):
         article = self.parser.parse(response.text)
-        return {
+
+        ret = {
             "url": response.url,
             'type':'common',
             "html": response.text,
@@ -94,3 +97,9 @@ class CommonSiteHandler(UDBHandler):
             "authors": '|'.join(article.authors),
             "publish_time": time.mktime(article.publish_date.timetuple()) if article.publish_date else None,
         }
+
+        # add for yuqing v4, these data should all be in extra in future
+        ret['source'] = response.save.get('source')
+        ret['extra'] = response.save.get('extra')
+
+        return ret

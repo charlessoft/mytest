@@ -97,8 +97,7 @@ app.config.update({
     'taskdb': None,
     'projectdb': None,
     'scheduler_rpc': None,
-    'queues': dict(),
-    'settingdb_url': 'mongodb://10.142.49.230:27088/',
+    'queues': dict()
 })
 
 
@@ -118,6 +117,18 @@ def cdn_url_handler(error, endpoint, kwargs):
 
 app.handle_url_build_error = cdn_url_handler
 
+# custom add
+
 from flask.ext.restful import Api
 
 api = Api(app)
+
+try:
+    from udbswp.config import API_DB_URL
+except Exception, e:
+    API_DB_URL = 'mongodb://10.142.49.41:27017/'
+
+app.config({
+    'settingdb_url': API_DB_URL,
+})
+

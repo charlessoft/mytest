@@ -192,6 +192,9 @@ class BaseHandler(object):
             result = self._run_task(task, response)
             if inspect.isgenerator(result):
                 for r in result:
+                    if r.get('url', task['url']) != task['url']:
+                        task['url'] = r['url']
+                        task['taskid'] = self.get_taskid(task)
                     self._run_func(self.on_result, r, response, task)
             else:
                 self._run_func(self.on_result, result, response, task)
@@ -254,11 +257,11 @@ class BaseHandler(object):
             kwargs.setdefault('method', 'POST')
 
         schedule = {}
-        for key in ('priority', 
-                    'retries', 
-                    'exetime', 
-                    'age', 
-                    'itag', 
+        for key in ('priority',
+                    'retries',
+                    'exetime',
+                    'age',
+                    'itag',
                     'force_update',
                     'auto_recrawl',
                     'bloomfilter_on',

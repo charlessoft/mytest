@@ -6,6 +6,9 @@ from bson.son import SON
 from pymongo import ASCENDING, DESCENDING
 import time
 
+import logging
+logger = logging.getLogger('webui')
+
 from .app import app, api
 
 
@@ -71,18 +74,18 @@ class SpiderArticle(SpiderArticleBase):
 
         if len(match_or) :
             match['$or'] = match_or
-
+            
         if len(match_and) :
             match['$and'] = match_and
-
+            
         pipeline.append({'$match':match})
-
+            
         if offset:
             pipeline.append({'$offset': offset})
         if limit:
             pipeline.append({'$limit': limit})
 
-        # app.logger.debug('construct aggregate pipeline: %s' % pipeline)
+        # logger.debug('construct aggregate pipeline: %s' % pipeline)
 
         return self.collection.aggregate(pipeline).get('result')
 

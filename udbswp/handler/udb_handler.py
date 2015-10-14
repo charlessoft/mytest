@@ -3,12 +3,15 @@
 
 
 from pyspider.libs.base_handler import BaseHandler
+from pyspider.libs.utils import md5string
 from udbswp.handler.helper import ProxyManager
 from udbswp.handler.api import Api
 from udbswp import config
 from pprint import pprint
 import time
 import ujson
+import dateutil.parser
+
 
 ENABLE_JSON_RESULT = getattr(config, 'ENABLE_JSON_RESULT', False)
 UDB_RESULT_QUEUE_NAME = getattr(config, 'UDB_RESULT_QUEUE_NAME', 'udb_result')
@@ -83,16 +86,17 @@ class UDBHandler(BaseHandler):
 
     def clean_result(self, result):
         """ keep result in certain format """
-        for k in result.keys():
-            if k not in self.RESULT_FIELDS:
-                del result[k]
+        # for k in result.keys():
+        #     if k not in self.RESULT_FIELDS:
+        #         del result[k]
 
         if 'publish_time' in result:
             if result['publish_time']:
                 try:
                     result['publish_time'] = int(result['publish_time'])
                 except:
-                    result['publish_time'] = 0
+                    publish_time = dateutil.parser.parse(result['publish_time'])
+                    publish_time = int(time.mktime(publish_date))
             else:
                 result['publish_time'] = 0
 
@@ -117,6 +121,8 @@ class UDBHandler(BaseHandler):
             # pack obj by ujson
             if ENABLE_JSON_RESULT and hasattr(result_queue, 'redis'):
                 result_queue.redis.rpush(UDB_RESULT_QUEUE_NAME, ujson.dumps(cleaned_result))
+
+
 
 
 class UDBListResultHandler(UDBHandler):

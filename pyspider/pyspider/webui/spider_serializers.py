@@ -24,9 +24,11 @@ class Articles(colander.SequenceSchema):
 
 class Setting(colander.MappingSchema):
     url = colander.SchemaNode(colander.String(), validator=url_validator)
+    name = colander.SchemaNode(colander.String(), missing='')
     proxy_on = colander.SchemaNode(colander.Boolean(), missing=False)
     js_on = colander.SchemaNode(colander.Boolean(), missing=False)
     max_depth = colander.SchemaNode(colander.Integer(), validator=colander.Range(0, 20), missing=2)
+    extra = colander.SchemaNode(colander.String(), missing='')
 
 
 class Settings(colander.SequenceSchema):
