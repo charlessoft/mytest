@@ -128,7 +128,7 @@ try:
 except Exception, e:
     API_DB_URL = 'mongodb://10.142.49.41:27017/'
 
-app.config({
+app.config.update({
     'settingdb_url': API_DB_URL,
 })
 
