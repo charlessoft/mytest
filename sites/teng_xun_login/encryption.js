@@ -1590,9 +1590,49 @@ function test11(salt)
 {
     document.write(salt);    
 }
+
+function getUinHex(strUin)
+{
+	var maxLength = 16;
+	strUin = parseInt(strUin);
+	var hex = strUin.toString(16);
+	var len = hex.length;
+	for (var i = len;i<maxLength;i++)
+	{
+		hex = "0" + hex;
+	}
+	var arr = [];
+	for (var j = 0;j<maxLength;j+=2)
+	{
+		arr.push(String.fromCharCode(parseInt(hex.substr(j,2),16)));
+	}
+	var result = arr.join("");
+	return result;
+}
+
+function getQQPassString(password,uin,vcode)
+{
+	var uinHexSalt = getUinHex(uin);
+	var result = enc_pwd(password,uinHexSalt,vcode);
+	return result;
+}
+
 function enc_pwd(pwd,salt,vcode,ismd5)
 {
+	//document.write("\x00\x00\x00\x00\x02\xb4\x62\xa7");
+	//document.write(salt);
 	return $pt.Encryption.getEncryption(pwd,salt,vcode,ismd5);
+	//return $pt.Encryption.getEncryption(pwd,'´b§',vcode,ismd5);
+    //
+
+	//return $pt.Encryption.getEncryption(pwd,salt,vcode,ismd5);
+	//stringToParse = salt;
+	//stringToParse = stringToParse.replace("\\x", "\x");
+	//stringToParse = eval(stringToParse);
+	//document.write(stringToParse);
+    //
+	//document.write("\x02\xb4\x62\xa7");
+	//document.write(salt);
 
 }
 function get_new_date()

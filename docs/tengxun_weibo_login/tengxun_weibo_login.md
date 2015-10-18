@@ -177,6 +177,8 @@ ptuiCB('0','0','`http://ptlogin4.t.qq.com/check_sig?pttype=1&uin=295044696&servi
 本文档解释了登录腾讯微博的步骤,目前腾讯登录验证会定期做调整,大部分是qq密码加密或者一些参数做调整,对于qq密码加密,只需要提取js代码,通过v8解析能够计算出qq密码就可以。
 
 
+## 资料
+[javascritp \x 16进制](http://stackoverflow.com/questions/7061795/string-encoding-question)
 
 
 
