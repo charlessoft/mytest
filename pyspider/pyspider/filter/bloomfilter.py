@@ -1,8 +1,10 @@
 #!/usr/bin/env python
-# -*- encoding: utf-8 -*-
-# vim: set et sw=4 ts=4 sts=4 ff=unix fenc=utf8:
-# Author: kasim
-# Created on 2015-08-14 22:23:10
+# -*- coding: utf-8 -*-
+# @Author: mithril
+# @Date:   2015-09-24 10:10:08
+# @Last Modified by:   mithril
+# @Last Modified time: 2015-10-15 14:45:13
+
 
 import logging
 import pybloom
