@@ -83,7 +83,7 @@ def connect_rpc(ctx, param, value):
               'please use --message-queue instead.')
 @click.option('--phantomjs-proxy', envvar='PHANTOMJS_PROXY', help="phantomjs proxy ip:port")
 @click.option('--data-path', default='./data', help='data dir path')
-@click.option('--add-sys-path/--not-add-sys-path', default=True, is_flag=True,
+@click.option('--add-sys-path/--not-add-sys-path', default=False, is_flag=True,
               help='add current working directory to python lib search path')
 @click.version_option(version=pyspider.__version__, prog_name=pyspider.__name__)
 @click.pass_context
@@ -429,9 +429,12 @@ def webui(ctx, host, port, cdn, scheduler_rpc, fetcher_rpc, max_rate, max_burst,
 @cli.command()
 @click.option('--phantomjs-path', default='phantomjs', help='phantomjs path')
 @click.option('--port', default=25555, help='phantomjs port')
+@click.option('--proxy', default=None, help='phantomjs proxy')
+@click.option('--proxy-type', default=None, help='phantomjs proxy-type [http|socks5|none]')
+@click.option('--ignore-ssl-errors', default=None, help='phantomjs ignore-ssl-errors')
 @click.option('--auto-restart', default=False, help='auto restart phantomjs if crashed')
 @click.pass_context
-def phantomjs(ctx, phantomjs_path, port, auto_restart):
+def phantomjs(ctx, phantomjs_path, port, proxy, proxy_type, ignore_ssl_errors, auto_restart):
     """
     Run phantomjs fetcher if phantomjs is installed.
     """
@@ -446,6 +449,11 @@ def phantomjs(ctx, phantomjs_path, port, auto_restart):
            # this may cause memory leak: https://github.com/ariya/phantomjs/issues/12903
            #'--load-images=false',
            phantomjs_fetcher, str(port)]
+
+
+    if proxy != None: cmd.insert(1,"--proxy=%s"%proxy)
+    if proxy_type != None: cmd.insert(1,"--proxy-type=%s"%proxy_type)
+    if ignore_ssl_errors != None: cmd.insert(1,"--ignore-ssl-errors=%s"%ignore_ssl_errors)
 
     try:
         _phantomjs = subprocess.Popen(cmd)
@@ -472,6 +480,122 @@ def phantomjs(ctx, phantomjs_path, port, auto_restart):
         if _quit or not auto_restart:
             break
         _phantomjs = subprocess.Popen(cmd)
+
+
+
+@cli.command()
+@click.option('--phantomjs-path', default='phantomjs', help='phantomjs path')
+@click.option('--port-begin', default=26000, help='phantomjs port')
+@click.option('--amount', default=1, help='phantomjs port amount')
+@click.option('--auto-restart', default=False, help='auto restart phantomjs if crashed')
+@click.pass_context
+def phantomjs_multi(ctx, phantomjs_path, port_begin, amount, auto_restart):
+    """
+    Run phantomjs fetcher if phantomjs is installed.
+    """
+    import subprocess
+    g = ctx.obj
+    _quit = []
+    phantomjs_fetcher = os.path.join(
+        os.path.dirname(pyspider.__file__), 'fetcher/phantomjs_fetcher.js')
+    cmd_tpl = [phantomjs_path,
+           '--ssl-protocol=any',
+           '--disk-cache=true',
+           # this may cause memory leak: https://github.com/ariya/phantomjs/issues/12903
+           #'--load-images=false',
+           phantomjs_fetcher]
+
+    phantomjs_group = []
+
+    try:
+        for i in range(amount):
+            port = str(port_begin + i)
+            cmd = cmd_tpl[:]
+            cmd.append(port)
+            phantomjs_group.append(subprocess.Popen(cmd))
+    except OSError:
+        logging.warning('phantomjs not found, continue running without it.')
+        return None
+
+
+
+@cli.command()
+@click.option('--phantomjs-proxy', help='phantomjs port begin')
+@click.option('--poolsize', default=100, help="max simultaneous fetches")
+@click.option('--proxy', help="proxy host:port")
+@click.option('--user-agent', help='user agent')
+@click.option('--timeout', help='default fetch timeout')
+@click.option('--fetcher-cls', default='pyspider.fetcher.Fetcher', callback=load_cls,
+              help='Fetcher class to be used.')
+@click.pass_context
+def fetcher_phantomjs(ctx, phantomjs_proxy, poolsize, proxy, user_agent,
+            timeout, fetcher_cls, async=True):
+    """
+    Run Fetcher.
+    """
+    g = ctx.obj
+
+    if not phantomjs_proxy:
+        raise Exception('fetcher_phantomjs need pass --phantomjs-proxy')
+
+    Fetcher = load_cls(None, None, fetcher_cls)
+
+    fetcher = Fetcher(inqueue=g.scheduler2fetcher, outqueue=g.fetcher2processor,
+                      poolsize=poolsize, proxy=proxy, async=async)
+
+    fetcher.phantomjs_proxy = phantomjs_proxy
+    if user_agent:
+        fetcher.user_agent = user_agent
+    if timeout:
+        fetcher.default_options = copy.deepcopy(fetcher.default_options)
+        fetcher.default_options['timeout'] = timeout
+
+    g.instances.append(fetcher)
+    if g.get('testing_mode'):
+        return fetcher
+
+    fetcher.run()
+
+
+@cli.command()
+@click.option('--phantomjs-proxy-port-begin', default=26000, help='phantomjs port begin')
+@click.option('--phantomjs-proxy-amount', default=1, help='phantomjs process amount')
+@click.option('--run-in', default='subprocess', type=click.Choice(['subprocess', 'thread']),
+              help='run each components in thread or subprocess. '
+              'always using thread for windows.')
+@click.pass_context
+def fetcher_phantomjs_multi(ctx, phantomjs_proxy_port_begin, phantomjs_proxy_amount, run_in):
+    """
+    Run Fetcher
+    """
+    ctx.obj['debug'] = False
+    g = ctx.obj
+
+    # FIXME: py34 cannot run components with threads
+    if run_in == 'subprocess' and os.name != 'nt':
+        run_in = utils.run_in_subprocess
+    else:
+        run_in = utils.run_in_thread
+
+    threads = []
+
+    try:
+        phantomjs_proxy_list = ['127.0.0.1:%s' % (phantomjs_proxy_port_begin+i) for i in range(phantomjs_proxy_amount)]
+        for phantomjs_proxy in phantomjs_proxy_list:
+            threads.append(run_in(ctx.invoke, fetcher_phantomjs, **{'phantomjs_proxy': phantomjs_proxy}))
+    finally:
+        # exit components run in threading
+        for each in g.instances:
+            each.quit()
+
+        # exit components run in subprocess
+        for each in threads:
+            if not each.is_alive():
+                continue
+            if hasattr(each, 'terminate'):
+                each.terminate()
+            each.join()
+
 
 
 @cli.command()
