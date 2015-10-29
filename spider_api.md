@@ -92,11 +92,12 @@
     数据结构例子:
 
     {
-    'url': 'http://info.hp.hc360.com/2015/09/220847300302.shtml',
-    'type': 'type',
-    'html':'xxxxxxx',
-    'title': 'xxxxx',
-    'text':'xxxxx',
-    'authors' : 'xxxx|xxxx',
-    'publish_time': 1442884792.59
+        'url': 'http://info.hp.hc360.com/2015/09/220847300302.shtml',
+        'type': 'type',
+        'html':'xxxxxxx',
+        'title': 'xxxxx',
+        'text':'xxxxx',
+        'authors' : 'xxxx|xxxx',
+        'publish_time': 1442884792.59
+        'extra':'xxxxxx'
     }

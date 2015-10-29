@@ -1,7 +1,10 @@
 #!/usr/bin/env python
-# -*- encoding: utf-8 -*-
-# Created on 2015-08-10 11:32:41
-# Project: SearchHandler
+# -*- coding: utf-8 -*-
+# @Author: mithril
+# @Date:   2015-09-24 10:10:08
+# @Last Modified by:   mithril
+# @Last Modified time: 2015-10-15 14:46:04
+
 
 from pyspider.libs.base_handler import every
 from udbswp.handler.udb_handler import UDBHandler

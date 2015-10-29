@@ -1,7 +1,10 @@
 #!/usr/bin/env python
-# -*- encoding: utf-8 -*-
-# Created on 2015-08-30 11:32:41
-# Project: common
+# -*- coding: utf-8 -*-
+# @Author: mithril
+# @Date:   2015-09-24 10:10:08
+# @Last Modified by:   mithril
+# @Last Modified time: 2015-10-15 16:19:49
+
 from six.moves.urllib.parse import urlparse
 import time
 
@@ -67,7 +70,6 @@ class CommonSiteHandler(UDBHandler):
         for url, data in self.settings.items():
             context = {
                 'base_url': url,
-                'source': data.get('name', '')
                 'extra': data.get('extra', '')
                 # 'proxy_on': self.settings[parsed.hostname]['proxy_on'],
                 # 'hostname': urlparse(url).hostname,
@@ -99,7 +101,7 @@ class CommonSiteHandler(UDBHandler):
         }
 
         # add for yuqing v4, these data should all be in extra in future
-        ret['source'] = response.save.get('source')
+
         ret['extra'] = response.save.get('extra')
 
         return ret
