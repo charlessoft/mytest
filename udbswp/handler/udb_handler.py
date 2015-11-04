@@ -99,8 +99,8 @@ class UDBHandler(BaseHandler):
                 try:
                     result['publish_time'] = int(result['publish_time'])
                 except:
-                    publish_time = dateutil.parser.parse(result['publish_time'])
-                    publish_time = int(time.mktime(publish_date))
+                    publish_date = dateutil.parser.parse(result['publish_time'])
+                    result['publish_time'] = int(time.mktime(publish_date))
             else:
                 result['publish_time'] = 0
 
@@ -120,7 +120,13 @@ class UDBHandler(BaseHandler):
 
         if result_queue:
             cleaned_result = self.clean_result(result)
-            result_queue.put((self.task, cleaned_result))
+            if cleaned_result.get('url', self.task['url']) != self.task['url']:
+                new_task = self.task.copy()
+                new_task['url'] = cleaned_result['url']
+                new_task['taskid'] = self.get_taskid(new_task)
+                result_queue.put((new_task, cleaned_result))
+            else:
+                result_queue.put((self.task, cleaned_result))
 
             # pack obj by ujson
             if ENABLE_JSON_RESULT and hasattr(result_queue, 'redis'):
