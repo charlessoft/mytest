@@ -191,10 +191,13 @@ class BaseHandler(object):
             self._reset()
             result = self._run_task(task, response)
             if inspect.isgenerator(result):
+                need_original_task = False
                 for r in result:
-                    if r.get('url', task['url']) != task['url']:
-                        task['url'] = r['url']
-                        task['taskid'] = self.get_taskid(task)
+                    # by mithril:
+                    # do not try to generate new taskid when result has a different url at here
+                    # because result_queue.put((self.task, cleaned_result)) in on_result
+                    # so new_task = task.copy() wouldn't work
+                    # you should write code to on_result
                     self._run_func(self.on_result, r, response, task)
             else:
                 self._run_func(self.on_result, result, response, task)
