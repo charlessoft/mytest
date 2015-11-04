@@ -47,9 +47,9 @@ class weibo_login():
         }
         self.m_usernmae = ''
         self.m_password = ''
-        self.m_headers = {}
-        self.m_headers[
-            'User-Agent'] = 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.157 Safari/537.36'
+        self.m_headers = {
+                'User-Agent' : 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.157 Safari/537.36'
+                }
         self.m_wbilang_10000 = ''
         self.m_cookies = {}
         self.m_xlogin_url = ''
@@ -128,8 +128,12 @@ class weibo_login():
         headers = {}
         # cookies = {}
         headers.update(self.m_headers)
-        headers['Referer'] = 'http://t.qq.com/login.php'
-        headers['Upgrade-Insecure-Requests'] = '1'
+        headers.update(
+                {
+                    'Referer':'http://t.qq.com/login.php',
+                    'Upgrade-Insecure-Requests':'1'
+                    })
+
         r = self.m_s.get(self.m_url, headers=headers, verify=False)
         encoding = chardet.detect(r.content)['encoding']
         r.encoding = 'utf-8'
@@ -179,18 +183,20 @@ class weibo_login():
     def check(self):
         '''check url 获取验证码和salt'''
         self.m_func = '[check]'
-        urlplayoud = {}
-        urlplayoud['regmaster'] = self.m_regmaster
-        urlplayoud['pt_tea'] = 1
-        urlplayoud['pt_vcode'] = self.m_pt_vcode
-        urlplayoud['uid'] = self.m_usernmae
-        urlplayoud['appid'] = self.m_appid
-        urlplayoud['js_ver'] = self.m_js_ver
-        urlplayoud['js_tpe'] = self.m_js_type
-        urlplayoud['login_sig'] = self.m_login_sig
-        urlplayoud['u1'] = self.m_s_url
-        urlplayoud['uin'] = self.m_usernmae
+        urlplayoud = {
+                'regmaster': self.m_regmaster,
+                'pt_tea' : 1,
+                'pt_vcode': self.m_pt_vcode,
+                'uid' : self.m_usernmae,
+                'appid' : self.m_appid,
+                'js_ver' : self.m_js_ver,
+                'js_tpe': self.m_js_type,
+                'login_sig': self.m_login_sig,
+                'u1':self.m_s_url,
+                'uin':self.m_usernmae
+                }
         urlplayoud = urllib.urlencode(urlplayoud)
+
         self.m_url = 'https://ssl.ptlogin2.qq.com/check?' + urlplayoud
         logging.debug("===%s ok===" % self.m_func)
         headers = {}
@@ -223,27 +229,30 @@ class weibo_login():
         self.m_func = '[login]'
         js_encrypt = open('encryption.js', 'rb').read()
         self.jsparse(js_encrypt)
-        urlplayoud = {}
-        urlplayoud['u'] = self.m_usernmae
-        urlplayoud['pt_vcode_v1'] = 0
-        urlplayoud['pt_verifysession_v1'] = self.m_ptvfsession
-        urlplayoud['pt_randsalt'] = self.m_isRandSale
-        urlplayoud['u1'] = 'http://t.qq.com'
-        urlplayoud['ptredirect'] = 1
-        urlplayoud['h'] = 1
-        urlplayoud['t'] = 1
-        urlplayoud['g'] = 1
-        urlplayoud['from_ui'] = 1
-        urlplayoud['ptlang'] = '2052'
-        urlplayoud['action'] = '0-21-1083992'  # '6' + "-" + '16' + "-" + str(time.time()).replace('.', '')[0:13]
-        urlplayoud['js_ver'] = 10135
-        urlplayoud['js_type'] = 1
-        urlplayoud['login_sig'] = self.m_login_sig
-        urlplayoud['pt_uistyle'] = 23
-        urlplayoud['low_login_enable'] = 1
-        urlplayoud['low_login_hour'] = 720
-        urlplayoud['aid'] = self.m_appid
-        urlplayoud['daid'] = 6
+        urlplayoud = {
+                'u' : self.m_usernmae,
+                'pt_vcode_v1' : 0,
+                'pt_verifysession_v1' : self.m_ptvfsession,
+                'pt_randsalt' : self.m_isRandSale,
+                'u1' : 'http://t.qq.com',
+                'ptredirect' : 1,
+                'h' : 1,
+                't' : 1,
+                'g' : 1,
+                'from_ui' : 1,
+                'ptlang' : '2052',
+                'action' : '0-21-1083992',  # '6' + "-" + '16' + "-" + str(time.time()).replace('.', '')[0:13],
+                'js_ver' : 10135,
+                'js_type' : 1,
+                'login_sig' : self.m_login_sig,
+                'pt_uistyle' : 23,
+                'low_login_enable' : 1,
+                'low_login_hour' : 720,
+                'aid' : self.m_appid,
+                'daid' : 6
+                }
+
+
 
         logging.info('%s' % urllib.urlencode(urlplayoud))
         self.m_url = 'https://ssl.ptlogin2.qq.com/login?' + urllib.urlencode(urlplayoud)
@@ -256,8 +265,10 @@ class weibo_login():
         self.m_url = self.m_url + '&p=' + enc_pwd
         self.m_url = self.m_url + "&verifycode=" + self.m_cap_cd
         self.m_url = self.m_url + "&"
-        headers = {}
-        headers['Referer'] = self.m_xlogin_url
+        headers = {
+                'Referer': self.m_xlogin_url
+                }
+
         self.m_s.cookies.update({'ptui_loginuin': self.m_usernmae})
         r = self.m_s.get(self.m_url, headers=headers, proxies=self.m_proxies, verify=False)
         if r.status_code == requests.codes.ok:
