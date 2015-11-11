@@ -1,41 +1,39 @@
 # -*- coding: UTF-8 -*-
+__author__ = 'chenqian'
 import time
 import requests
 import urllib
 import sys
+
 reload(sys)
 import re
+import os
 import chardet
 import logging
-import os
-
 from jsEngine import *
-
-logging.basicConfig( \
-    level=logging.DEBUG,
-    format='%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s',
-    datefmt='%a, %d %b %Y %H:%M:%S',
-    filename='myapp.log',
-    filemode='w')
-
-console = logging.StreamHandler()
-console.setLevel(logging.INFO)
-formatter = logging.Formatter('%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s')
-console.setFormatter(formatter)
-logging.getLogger('').addHandler(console)
-
 from pyquery import PyQuery as pq
+
+#logging.basicConfig( \
+    #level=logging.DEBUG,
+    #format='%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s',
+    #datefmt='%a, %d %b %Y %H:%M:%S',
+    #filename='myapp.log',
+    #filemode='w')
+
+#console = logging.StreamHandler()
+#console.setLevel(logging.INFO)
+#formatter = logging.Formatter('%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s')
+#console.setFormatter(formatter)
+#logging.getLogger('').addHandler(console)
 
 sys.setdefaultencoding('utf-8')
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
-
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
 glob = Global()
 
 
-
-class weibo_login():
+class tencent_weibo_login():
     def set_userinfo(self, username, password):
         self.m_usernmae = username
         self.m_password = password
@@ -49,8 +47,8 @@ class weibo_login():
         self.m_usernmae = ''
         self.m_password = ''
         self.m_headers = {
-                'User-Agent' : 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.157 Safari/537.36'
-                }
+            'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.157 Safari/537.36'
+        }
         self.m_wbilang_10000 = ''
         self.m_cookies = {}
         self.m_xlogin_url = ''
@@ -80,8 +78,10 @@ class weibo_login():
         self.m_isRandSale = ''  # ptui_checkVC 最后5位参数
         self.m_check_sig_url = ''
 
-
     def dump_c(self, cookies):
+        '''
+        导出cookie
+        '''
         strtmp = ''
         for key, value in cookies.items():
             strtmp = strtmp + '%s=%s;' % (key, value)
@@ -97,8 +97,6 @@ class weibo_login():
         ctxt.eval(js)
         self.m_env = ctxt.locals
         pass
-
-
 
     def t_qq_login_page(self):
         ''' 访问登陆首页,获取iframe_login页面url '''
@@ -130,10 +128,10 @@ class weibo_login():
         # cookies = {}
         headers.update(self.m_headers)
         headers.update(
-                {
-                    'Referer':'http://t.qq.com/login.php',
-                    'Upgrade-Insecure-Requests':'1'
-                    })
+            {
+                'Referer': 'http://t.qq.com/login.php',
+                'Upgrade-Insecure-Requests': '1'
+            })
 
         r = self.m_s.get(self.m_url, headers=headers, verify=False)
         encoding = chardet.detect(r.content)['encoding']
@@ -185,17 +183,17 @@ class weibo_login():
         '''check url 获取验证码和salt'''
         self.m_func = '[check]'
         urlplayoud = {
-                'regmaster': self.m_regmaster,
-                'pt_tea' : 1,
-                'pt_vcode': self.m_pt_vcode,
-                'uid' : self.m_usernmae,
-                'appid' : self.m_appid,
-                'js_ver' : self.m_js_ver,
-                'js_tpe': self.m_js_type,
-                'login_sig': self.m_login_sig,
-                'u1':self.m_s_url,
-                'uin':self.m_usernmae
-                }
+            'regmaster': self.m_regmaster,
+            'pt_tea': 1,
+            'pt_vcode': self.m_pt_vcode,
+            'uid': self.m_usernmae,
+            'appid': self.m_appid,
+            'js_ver': self.m_js_ver,
+            'js_tpe': self.m_js_type,
+            'login_sig': self.m_login_sig,
+            'u1': self.m_s_url,
+            'uin': self.m_usernmae
+        }
         urlplayoud = urllib.urlencode(urlplayoud)
 
         self.m_url = 'https://ssl.ptlogin2.qq.com/check?' + urlplayoud
@@ -229,33 +227,31 @@ class weibo_login():
         ''' 登陆 '''
         self.m_func = '[login]'
         jspath = "{0}/encryption.js".format(os.path.split(os.path.realpath(__file__))[0])
-        logging.info("jspath=%s",jspath)
+        logging.info("jspath=%s", jspath)
         js_encrypt = open(jspath, 'rb').read()
         self.jsparse(js_encrypt)
         urlplayoud = {
-                'u' : self.m_usernmae,
-                'pt_vcode_v1' : 0,
-                'pt_verifysession_v1' : self.m_ptvfsession,
-                'pt_randsalt' : self.m_isRandSale,
-                'u1' : 'http://t.qq.com',
-                'ptredirect' : 1,
-                'h' : 1,
-                't' : 1,
-                'g' : 1,
-                'from_ui' : 1,
-                'ptlang' : '2052',
-                'action' : '0-21-1083992',  # '6' + "-" + '16' + "-" + str(time.time()).replace('.', '')[0:13],
-                'js_ver' : 10135,
-                'js_type' : 1,
-                'login_sig' : self.m_login_sig,
-                'pt_uistyle' : 23,
-                'low_login_enable' : 1,
-                'low_login_hour' : 720,
-                'aid' : self.m_appid,
-                'daid' : 6
-                }
-
-
+            'u': self.m_usernmae,
+            'pt_vcode_v1': 0,
+            'pt_verifysession_v1': self.m_ptvfsession,
+            'pt_randsalt': self.m_isRandSale,
+            'u1': 'http://t.qq.com',
+            'ptredirect': 1,
+            'h': 1,
+            't': 1,
+            'g': 1,
+            'from_ui': 1,
+            'ptlang': '2052',
+            'action': '0-21-1083992',  # '6' + "-" + '16' + "-" + str(time.time()).replace('.', '')[0:13],
+            'js_ver': 10135,
+            'js_type': 1,
+            'login_sig': self.m_login_sig,
+            'pt_uistyle': 23,
+            'low_login_enable': 1,
+            'low_login_hour': 720,
+            'aid': self.m_appid,
+            'daid': 6
+        }
 
         logging.info('%s' % urllib.urlencode(urlplayoud))
         self.m_url = 'https://ssl.ptlogin2.qq.com/login?' + urllib.urlencode(urlplayoud)
@@ -269,8 +265,8 @@ class weibo_login():
         self.m_url = self.m_url + "&verifycode=" + self.m_cap_cd
         self.m_url = self.m_url + "&"
         headers = {
-                'Referer': self.m_xlogin_url
-                }
+            'Referer': self.m_xlogin_url
+        }
 
         self.m_s.cookies.update({'ptui_loginuin': self.m_usernmae})
         r = self.m_s.get(self.m_url, headers=headers, proxies=self.m_proxies, verify=False)
@@ -298,9 +294,10 @@ class weibo_login():
             logging.error("%s fail" % self.m_func)
             return ""
 
-
-
     def qqlogin(self):
+        '''
+        登陆函数,腾讯微博的登陆流程见README.md
+        '''
 
         # jspath = "{0}/encryption.js".format(os.path.split(os.path.realpath(__file__))[0])
         # logging.info(jspath)
@@ -309,8 +306,6 @@ class weibo_login():
         if not bret:
             return False
         bret = self.xlogin_iframe()
-        if not bret:
-            return False
         if not bret:
             return False
         bret = self.check()
@@ -322,29 +317,10 @@ class weibo_login():
         return self.check_sig_url()
 
 
-
-
 if __name__ == '__main__':
-
-# 用于参考,登陆代码已经移直 udbswp.login模块
     username = '295044696'
     password = 'aA1234567890'
     # account_hex = '\x00\x00\x00\x00\x11\x96\x06\x58'
-    weibo = weibo_login()
-    # weibo.jsparse_path('encryption.js')
-    weibo.set_userinfo(username, password)
-    print weibo.qqlogin()
-
-    # bret = weibo.t_qq_login_page()
-    # if not bret:
-    #     sys.exit(1)
-    # bret = weibo.xlogin_iframe()
-    # if not bret:
-    #     sys.exit(1)
-    # bret = weibo.check()
-    # if not bret:
-    #     sys.exit(1)
-    # bret = weibo.login()
-    # if not bret:
-    #     sys.exit(1)
-    # print weibo.check_sig_url()
+    weibo_login = tencent_weibo_login()
+    weibo_login.set_userinfo(username, password)
+    print weibo_login.qqlogin()
