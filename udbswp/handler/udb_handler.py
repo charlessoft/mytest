@@ -3,7 +3,7 @@
 # @Author: mithril
 # @Date:   2015-09-24 10:10:08
 # @Last Modified by:   mithril
-# @Last Modified time: 2015-10-15 14:46:07
+# @Last Modified time: 2015-11-12 16:42:43
 
 
 from pyspider.libs.base_handler import BaseHandler
@@ -100,7 +100,7 @@ class UDBHandler(BaseHandler):
                     result['publish_time'] = int(result['publish_time'])
                 except:
                     publish_date = dateutil.parser.parse(result['publish_time'])
-                    result['publish_time'] = int(time.mktime(publish_date))
+                    result['publish_time'] = int(time.mktime(publish_date.timetuple()))
             else:
                 result['publish_time'] = 0
 
