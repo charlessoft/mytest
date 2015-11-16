@@ -2,6 +2,7 @@
 data/*
 venv
 udbswp/config.py
+udbswp/config.json
 
 # C extensions
 *.so
