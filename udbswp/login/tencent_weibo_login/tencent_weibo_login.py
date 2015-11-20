@@ -13,18 +13,18 @@ import logging
 from jsEngine import *
 from pyquery import PyQuery as pq
 
-#logging.basicConfig( \
-    #level=logging.DEBUG,
-    #format='%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s',
-    #datefmt='%a, %d %b %Y %H:%M:%S',
-    #filename='myapp.log',
-    #filemode='w')
+logging.basicConfig( \
+    level=logging.DEBUG,
+    format='%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s',
+    datefmt='%a, %d %b %Y %H:%M:%S',
+    filename='myapp.log',
+    filemode='w')
 
-#console = logging.StreamHandler()
-#console.setLevel(logging.INFO)
-#formatter = logging.Formatter('%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s')
-#console.setFormatter(formatter)
-#logging.getLogger('').addHandler(console)
+console = logging.StreamHandler()
+console.setLevel(logging.INFO)
+formatter = logging.Formatter('%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s')
+console.setFormatter(formatter)
+logging.getLogger('').addHandler(console)
 
 sys.setdefaultencoding('utf-8')
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
@@ -37,6 +37,13 @@ class tencent_weibo_login():
     def set_userinfo(self, username, password):
         self.m_usernmae = username
         self.m_password = password
+        # self.m_username,self.m_password = '2659200880----lwksib56438'.split('----')
+        # self.m_usernmae,self.m_password = '295044696----aA1234567890'.split('----')
+        self.m_usernmae,self.m_password = '2659200880----lwksib56438'.split('----')
+        # self.m_usernmae,self.m_password = '7671557----cq3432308851220'.split('----')
+        # self.m_usernmae,self.m_password = '45376167----aA123456789a'.split('----')
+        # self.m_username,self.m_password = '7671557----cq3432308851220'.split('----')
+
 
     def __init__(self):
         logging.info("init")
@@ -99,6 +106,8 @@ class tencent_weibo_login():
         pass
 
     def t_qq_login_page(self):
+        # self.m_xlogin_url = "https://xui.ptlogin2.qq.com/cgi-bin/xlogin?appid=46000101&style=23&lang=&low_login=1&hide_border=1&hide_title_bar=1&hide_close_icon=1&border_radius=1&self_regurl=http%3A//reg.t.qq.com/index.php&proxy_url=http://t.qq.com/proxy_t.html&s_url=http%3A%2F%2Ft.qq.com%2F&daid=6"
+        # return self.m_xlogin_url
         ''' 访问登陆首页,获取iframe_login页面url '''
         self.m_url = 'http://t.qq.com/login.php'
         self.m_func = '[t_qq_login_page]'
@@ -115,6 +124,7 @@ class tencent_weibo_login():
                 logging.debug('xlogin_url: %s\n' % self.m_func)
                 return True
             else:
+                #logging.error(r.content)
                 logging.error('no search')
                 return False
 
@@ -274,6 +284,7 @@ class tencent_weibo_login():
             logging.info("%s ok" % self.m_func)
             pattent = r"'(.*?)','(.*?)','(.*?)'"
             lsFind = re.findall(pattent, r.content)
+            logging.info(r.content)
             if lsFind:
                 self.m_check_sig_url = lsFind[0][2]
             return True
