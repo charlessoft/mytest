@@ -12,7 +12,6 @@ from codecs import open
 from os import path
 
 install_requires = [
-    'pyspider',
     'requests>=2.2',
     'pymongo>=2.7.2,<3.0',
     'python-dateutil',

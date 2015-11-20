@@ -3,7 +3,7 @@
 # @Author: mithril
 # @Date:   2015-09-24 10:10:08
 # @Last Modified by:   mithril
-# @Last Modified time: 2015-11-12 16:42:43
+# @Last Modified time: 2015-11-19 10:39:06
 
 
 from pyspider.libs.base_handler import BaseHandler
@@ -28,11 +28,14 @@ class UDBHandler(BaseHandler):
         }
     }
 
-    RESULT_FIELDS = ['url', 'type', 'title', 'text', 'authors', 'publish_time', 'keywords']
+    RESULT_FIELDS = ['url', 'type', 'title', 'text', 'authors', 'publish_time', 'keywords', 'extra']
 
     UPDATE_SETTINGS_INTERVAL = 3600
     UPDATE_KEYWORDS_INTERVAL = 3600
     UPDATE_PROXIES_INTERVAL = 3600*12
+
+    PROXY_ON = False
+    JS_ON = False
 
     SETTING_TYPE = 'common'
     KEYWORD_TYPE = 'common'
@@ -47,9 +50,9 @@ class UDBHandler(BaseHandler):
         if time.time() - self.last_update_settings > self.UPDATE_SETTINGS_INTERVAL:
             self.update_settings()
         if time.time() - self.last_update_keywords > self.UPDATE_KEYWORDS_INTERVAL:
-            self.update_settings()
+            self.update_keywords()
         if time.time() - self.last_update_proxies > self.UPDATE_PROXIES_INTERVAL:
-            self.update_settings()
+            self.update_proxies()
 
     def get_settings(self):
         return self.api.get_settings(self.SETTING_TYPE)
@@ -75,6 +78,17 @@ class UDBHandler(BaseHandler):
 
     def pick_proxy(self):
         return self.proxy_manager.pick_one()
+
+    def crawl(self, url, **kwargs):
+
+        if self.PROXY_ON:
+            kwargs['proxy'] = self.proxy_manager.pick_one()
+
+        if self.JS_ON:
+            kwargs['fetch_type'] = 'js'
+
+        return super(UDBHandler, self).crawl(url, **kwargs)
+
 
     # def crawl(self, url, **kwargs):
     #     if self.settings.get('proxy_on', False):

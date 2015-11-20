@@ -3,7 +3,7 @@
 # @Author: mithril
 # @Date:   2015-09-24 10:10:08
 # @Last Modified by:   mithril
-# @Last Modified time: 2015-10-15 14:46:04
+# @Last Modified time: 2015-11-19 11:03:02
 
 
 from pyspider.libs.base_handler import every
@@ -29,15 +29,6 @@ class SearchHandler(UDBHandler):
     JS_ON = False
 
 
-    def crawl(self, url, **kwargs):
-        if self.PROXY_ON:
-            kwargs['proxy'] = self.proxy_manager.pick_one()
-
-        if self.JS_ON:
-            kwargs['fetch_type'] = 'js'
-
-        return super(SearchHandler, self).crawl(url, **kwargs)
-
     def generate_urls(self):
         kw_urls = dict()
         for keyword in self.keywords:
@@ -56,7 +47,7 @@ class SearchHandler(UDBHandler):
             response.save['cur_page'] += 1
             next_url = response.doc(self.NEXT_ANCHOR_SEL).attr.href
             if next_url:
-                self.crawl(next_url, callback=self.crawl_list_page, save=response.save, cookies=response.cookies, bloomfilter_on=True)
+                self.crawl(next_url, callback=self.crawl_list_page, save=response.save, cookies=response.cookies)
 
     @every(minutes=5)
     def on_start(self):

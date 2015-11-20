@@ -3,7 +3,7 @@
 # @Author: mithril
 # @Date:   2015-09-24 10:10:08
 # @Last Modified by:   mithril
-# @Last Modified time: 2015-10-15 14:45:54
+# @Last Modified time: 2015-11-18 16:02:05
 
 
 from pyspider.libs.base_handler import every
@@ -23,6 +23,7 @@ class AccountHandler(UDBHandler):
     UPDATE_ACCOUNTS_INTERVAL = 3600
     LIST_ANCHOR_SEL = 'a.news_lst_tab'
     NEXT_ANCHOR_SEL = ''
+    PROXY_ON = False
     JS_ON = False
     ACCOUNT_TYPE = None
 
@@ -42,18 +43,18 @@ class AccountHandler(UDBHandler):
     def generate_urls(self):
         account_urls = dict()
         for account in self.accounts:
-            account_urls[account] = self.build_url(account)
+            url = self.build_url(account)
+            context = {
+                    'account': account
+                }
+            account_urls[url] = context
         return account_urls
 
-    @every(minutes=5)
+    @every(minutes=10)
     def on_start(self):
         self.check_update()
         account_urls = self.generate_urls().items()
-        for account, url in account_urls:
-            context = {
-                'account':account,
-                'cur_page': 0,
-            }
+        for url, context in account_urls:
             self.crawl(url, callback=self.crawl_list_page, save=context, force_update=True)
 
     def crawl_list_page(self, response):

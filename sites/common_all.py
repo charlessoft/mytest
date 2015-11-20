@@ -3,7 +3,7 @@
 # @Author: mithril
 # @Date:   2015-09-24 10:10:08
 # @Last Modified by:   mithril
-# @Last Modified time: 2015-11-18 09:39:24
+# @Last Modified time: 2015-11-18 10:04:06
 
 from six.moves.urllib.parse import urlparse
 import time
@@ -13,6 +13,7 @@ from pyspider.libs.url import _build_url
 
 from udbswp.handler.udb_handler import UDBHandler
 from udbswp.atlproc import newspaperEngine
+from newspaper import Article
 
 
 
@@ -83,9 +84,14 @@ class CommonSiteHandler(UDBHandler):
         cur_depth = response.save.get('cur_depth', 0)
         if cur_depth > 0:
             for each in response.doc('a[href^="http"]').items():
-                title = each.text().strip(' \n\r\t')
-                if title and (not self.KEYWORD_ON or any(title.find(kw) > -1 for kw in self.keywords)):
-                    self.crawl(each.attr.href, callback=self.index_page, save=response.save)
+                article = Article('', language='zh', memoize_articles=False, fetch_images=False)
+                article.download(html=response.text)
+                article.parse()
+                for a in article.articles():
+                    print(a)
+                for c in article.category_urls():
+                    print(c)
+
         else:
             return self.parse(response)
 
